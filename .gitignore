@@ -1,0 +1,11 @@
+poisson_seq
+poisson_omp
+poisson_mpi
+poisson_hyb
+*.bin
+*.o
+
+# Логи прогонов — часть истории работы для отчёта, их коммитим
+# (корневой .gitignore исключает *.out и *.err).
+!*.out
+!*.err

@@ -1,0 +1,14 @@
+#BSUB -J omp_80x80_t1
+#BSUB -q short
+#BSUB -W 00:10
+#BSUB -n 1
+#BSUB -R "affinity[core(1)]"
+#BSUB -o results/polus/omp_80x80_t1.%J.out
+#BSUB -e results/polus/omp_80x80_t1.%J.err
+source /polusfs/setenv/setup.SMPI
+echo "job $LSB_JOBID (omp_80x80_t1) hosts: $LSB_HOSTS"
+echo "bind cpu list: ${LSB_BIND_CPU_LIST:-none}"
+date
+export OMP_NUM_THREADS=1 OMP_PROC_BIND=close
+/polusfs/lsf/openmp/launchOpenMP.py ./poisson_omp 80 80
+date

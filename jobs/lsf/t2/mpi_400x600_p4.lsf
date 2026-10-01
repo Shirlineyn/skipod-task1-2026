@@ -1,0 +1,13 @@
+#BSUB -J mpi_400x600_p4
+#BSUB -q short
+#BSUB -W 00:10
+#BSUB -n 4
+#BSUB -R "affinity[core(1)] span[hosts=1]"
+#BSUB -o results/polus/mpi_400x600_p4.%J.out
+#BSUB -e results/polus/mpi_400x600_p4.%J.err
+source /polusfs/setenv/setup.SMPI
+echo "job $LSB_JOBID (mpi_400x600_p4) hosts: $LSB_HOSTS"
+echo "bind cpu list: ${LSB_BIND_CPU_LIST:-none}"
+date
+mpiexec ./poisson_mpi 400 600
+date

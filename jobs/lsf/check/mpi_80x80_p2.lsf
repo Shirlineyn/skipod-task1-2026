@@ -1,0 +1,13 @@
+#BSUB -J mpi_80x80_p2
+#BSUB -q short
+#BSUB -W 00:10
+#BSUB -n 2
+#BSUB -R "affinity[core(1)] span[hosts=1]"
+#BSUB -o results/polus/mpi_80x80_p2.%J.out
+#BSUB -e results/polus/mpi_80x80_p2.%J.err
+source /polusfs/setenv/setup.SMPI
+echo "job $LSB_JOBID (mpi_80x80_p2) hosts: $LSB_HOSTS"
+echo "bind cpu list: ${LSB_BIND_CPU_LIST:-none}"
+date
+mpiexec ./poisson_mpi 80 80
+date

@@ -1,0 +1,13 @@
+#BSUB -J seq_80x80
+#BSUB -q short
+#BSUB -W 00:10
+#BSUB -n 1
+#BSUB -R "affinity[core(1)]"
+#BSUB -o results/polus/seq_80x80.%J.out
+#BSUB -e results/polus/seq_80x80.%J.err
+source /polusfs/setenv/setup.SMPI
+echo "job $LSB_JOBID (seq_80x80) hosts: $LSB_HOSTS"
+echo "bind cpu list: ${LSB_BIND_CPU_LIST:-none}"
+date
+./poisson_seq 80 80 --out results/polus/sol_80x80.bin
+date

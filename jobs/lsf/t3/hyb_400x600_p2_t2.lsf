@@ -1,0 +1,14 @@
+#BSUB -J hyb_400x600_p2_t2
+#BSUB -q short
+#BSUB -W 00:10
+#BSUB -n 2
+#BSUB -R "affinity[core(2)] span[hosts=1]"
+#BSUB -o results/polus/hyb_400x600_p2_t2.%J.out
+#BSUB -e results/polus/hyb_400x600_p2_t2.%J.err
+source /polusfs/setenv/setup.SMPI
+echo "job $LSB_JOBID (hyb_400x600_p2_t2) hosts: $LSB_HOSTS"
+echo "bind cpu list: ${LSB_BIND_CPU_LIST:-none}"
+date
+export OMP_NUM_THREADS=2
+mpiexec -x OMP_NUM_THREADS ./poisson_hyb 400 600
+date

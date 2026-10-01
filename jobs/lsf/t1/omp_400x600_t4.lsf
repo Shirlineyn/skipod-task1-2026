@@ -1,0 +1,14 @@
+#BSUB -J omp_400x600_t4
+#BSUB -q short
+#BSUB -W 00:10
+#BSUB -n 1
+#BSUB -R "affinity[core(4)]"
+#BSUB -o results/polus/omp_400x600_t4.%J.out
+#BSUB -e results/polus/omp_400x600_t4.%J.err
+source /polusfs/setenv/setup.SMPI
+echo "job $LSB_JOBID (omp_400x600_t4) hosts: $LSB_HOSTS"
+echo "bind cpu list: ${LSB_BIND_CPU_LIST:-none}"
+date
+export OMP_NUM_THREADS=4 OMP_PROC_BIND=close
+/polusfs/lsf/openmp/launchOpenMP.py ./poisson_omp 400 600
+date
