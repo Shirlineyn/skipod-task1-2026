@@ -1,0 +1,112 @@
+poisson_omp: M=400 N=600 h1=0.0055 h2=0.0055 eps=3.025e-05 delta=1e-06 threads=0
+iters=599 restarts=0 last_step=9.615e-07 resid=1.475e-02 J=-8.010171939421e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8478477067  max_D|w|=0.9999995894  nodes_in_D=110847
+time: setup=0.0049 cg=0.2906 total=0.2955 s
+RESULT prog=seq M=400 N=600 procs=1 threads=0 iters=599 time=0.295546 cg_time=0.290621 intw=1.847847706716e+00 maxw=9.999995893658e-01 resid=1.475e-02 restarts=0
+poisson_omp: M=400 N=600 h1=0.0055 h2=0.0055 eps=3.025e-05 delta=1e-06 threads=2
+iters=599 restarts=0 last_step=9.615e-07 resid=1.475e-02 J=-8.010171939421e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8478477067  max_D|w|=0.9999995894  nodes_in_D=110847
+time: setup=0.0032 cg=0.1627 total=0.1658 s
+RESULT prog=omp M=400 N=600 procs=1 threads=2 iters=599 time=0.165833 cg_time=0.162674 intw=1.847847706716e+00 maxw=9.999995893658e-01 resid=1.475e-02 restarts=0
+poisson_omp: M=400 N=600 h1=0.0055 h2=0.0055 eps=3.025e-05 delta=1e-06 threads=4
+iters=599 restarts=0 last_step=9.615e-07 resid=1.475e-02 J=-8.010171939421e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8478477067  max_D|w|=0.9999995894  nodes_in_D=110847
+time: setup=0.0018 cg=0.1052 total=0.1070 s
+RESULT prog=omp M=400 N=600 procs=1 threads=4 iters=599 time=0.106952 cg_time=0.105177 intw=1.847847706716e+00 maxw=9.999995893658e-01 resid=1.475e-02 restarts=0
+poisson_omp: M=400 N=600 h1=0.0055 h2=0.0055 eps=3.025e-05 delta=1e-06 threads=6
+iters=599 restarts=0 last_step=9.615e-07 resid=1.475e-02 J=-8.010171939421e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8478477067  max_D|w|=0.9999995894  nodes_in_D=110847
+time: setup=0.0018 cg=0.1392 total=0.1410 s
+RESULT prog=omp M=400 N=600 procs=1 threads=6 iters=599 time=0.141011 cg_time=0.139180 intw=1.847847706716e+00 maxw=9.999995893658e-01 resid=1.475e-02 restarts=0
+poisson_mpi: M=400 N=600 h1=0.0055 h2=0.0055 eps=3.025e-05 delta=1e-06 procs=2 threads=0 (MPI thread level 1)
+decomposition 1 x 2, blocks 399..399 x 299..300 nodes, worst nx/ny ratio 1.334
+iters=599 restarts=0 last_step=9.615e-07 resid=1.475e-02 J=-8.010171939421e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8478477067  max_D|w|=0.9999995894  nodes_in_D=110847
+time: setup=0.0025 cg=0.1488 total=0.1513 s; inside cg: halo=0.0024 allreduce=0.0077 s
+RESULT prog=mpi M=400 N=600 procs=2 threads=0 iters=599 time=0.151343 cg_time=0.148823 intw=1.847847706716e+00 maxw=9.999995893658e-01 resid=1.475e-02 restarts=0 decomp=1x2 halo=0.002425 allreduce=0.007700
+poisson_mpi: M=400 N=600 h1=0.0055 h2=0.0055 eps=3.025e-05 delta=1e-06 procs=4 threads=0 (MPI thread level 1)
+decomposition 2 x 2, blocks 199..200 x 299..300 nodes, worst nx/ny ratio 1.508
+iters=599 restarts=0 last_step=9.615e-07 resid=1.475e-02 J=-8.010171939421e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8478477067  max_D|w|=0.9999995894  nodes_in_D=110847
+time: setup=0.0014 cg=0.0784 total=0.0797 s; inside cg: halo=0.0018 allreduce=0.0066 s
+RESULT prog=mpi M=400 N=600 procs=4 threads=0 iters=599 time=0.079749 cg_time=0.078398 intw=1.847847706716e+00 maxw=9.999995893658e-01 resid=1.475e-02 restarts=0 decomp=2x2 halo=0.001848 allreduce=0.006553
+poisson_mpi: M=400 N=600 h1=0.0055 h2=0.0055 eps=3.025e-05 delta=1e-06 procs=6 threads=0 (MPI thread level 1)
+decomposition 2 x 3, blocks 199..200 x 199..200 nodes, worst nx/ny ratio 1.005
+iters=599 restarts=0 last_step=9.615e-07 resid=1.475e-02 J=-8.010171939421e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8478477067  max_D|w|=0.9999995894  nodes_in_D=110847
+time: setup=0.0025 cg=0.0916 total=0.0941 s; inside cg: halo=0.0062 allreduce=0.0379 s
+RESULT prog=mpi M=400 N=600 procs=6 threads=0 iters=599 time=0.094139 cg_time=0.091630 intw=1.847847706716e+00 maxw=9.999995893658e-01 resid=1.475e-02 restarts=0 decomp=2x3 halo=0.006202 allreduce=0.037892
+poisson_mpi: M=400 N=600 h1=0.0055 h2=0.0055 eps=3.025e-05 delta=1e-06 procs=2 threads=1 (MPI thread level 1)
+decomposition 1 x 2, blocks 399..399 x 299..300 nodes, worst nx/ny ratio 1.334
+iters=599 restarts=0 last_step=9.615e-07 resid=1.475e-02 J=-8.010171939421e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8478477067  max_D|w|=0.9999995894  nodes_in_D=110847
+time: setup=0.0025 cg=0.1502 total=0.1527 s; inside cg: halo=0.0025 allreduce=0.0084 s
+RESULT prog=hyb M=400 N=600 procs=2 threads=1 iters=599 time=0.152728 cg_time=0.150201 intw=1.847847706716e+00 maxw=9.999995893658e-01 resid=1.475e-02 restarts=0 decomp=1x2 halo=0.002500 allreduce=0.008350
+poisson_mpi: M=400 N=600 h1=0.0055 h2=0.0055 eps=3.025e-05 delta=1e-06 procs=2 threads=2 (MPI thread level 1)
+decomposition 1 x 2, blocks 399..399 x 299..300 nodes, worst nx/ny ratio 1.334
+iters=599 restarts=0 last_step=9.615e-07 resid=1.475e-02 J=-8.010171939421e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8478477067  max_D|w|=0.9999995894  nodes_in_D=110847
+time: setup=0.0014 cg=0.1032 total=0.1047 s; inside cg: halo=0.0025 allreduce=0.0055 s
+RESULT prog=hyb M=400 N=600 procs=2 threads=2 iters=599 time=0.104663 cg_time=0.103213 intw=1.847847706716e+00 maxw=9.999995893658e-01 resid=1.475e-02 restarts=0 decomp=1x2 halo=0.002494 allreduce=0.005509
+poisson_mpi: M=400 N=600 h1=0.0055 h2=0.0055 eps=3.025e-05 delta=1e-06 procs=2 threads=3 (MPI thread level 1)
+decomposition 1 x 2, blocks 399..399 x 299..300 nodes, worst nx/ny ratio 1.334
+iters=599 restarts=0 last_step=9.615e-07 resid=1.475e-02 J=-8.010171939421e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8478477067  max_D|w|=0.9999995894  nodes_in_D=110847
+time: setup=0.0015 cg=0.1353 total=0.1368 s; inside cg: halo=0.0052 allreduce=0.0163 s
+RESULT prog=hyb M=400 N=600 procs=2 threads=3 iters=599 time=0.136761 cg_time=0.135280 intw=1.847847706716e+00 maxw=9.999995893658e-01 resid=1.475e-02 restarts=0 decomp=1x2 halo=0.005171 allreduce=0.016343
+poisson_omp: M=800 N=1200 h1=0.00275 h2=0.00275 eps=7.5625e-06 delta=1e-06 threads=0
+iters=1018 restarts=0 last_step=9.989e-07 resid=6.360e-02 J=-8.036941092853e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8480576942  max_D|w|=0.9999996749  nodes_in_D=443943
+time: setup=0.0193 cg=2.0010 total=2.0203 s
+RESULT prog=seq M=800 N=1200 procs=1 threads=0 iters=1018 time=2.020320 cg_time=2.000993 intw=1.848057694198e+00 maxw=9.999996749223e-01 resid=6.360e-02 restarts=0
+poisson_omp: M=800 N=1200 h1=0.00275 h2=0.00275 eps=7.5625e-06 delta=1e-06 threads=2
+iters=1018 restarts=0 last_step=9.989e-07 resid=6.360e-02 J=-8.036941092853e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8480576942  max_D|w|=0.9999996749  nodes_in_D=443943
+time: setup=0.0111 cg=1.1727 total=1.1838 s
+RESULT prog=omp M=800 N=1200 procs=1 threads=2 iters=1018 time=1.183844 cg_time=1.172717 intw=1.848057694198e+00 maxw=9.999996749223e-01 resid=6.360e-02 restarts=0
+poisson_omp: M=800 N=1200 h1=0.00275 h2=0.00275 eps=7.5625e-06 delta=1e-06 threads=4
+iters=1018 restarts=0 last_step=9.989e-07 resid=6.360e-02 J=-8.036941092853e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8480576942  max_D|w|=0.9999996749  nodes_in_D=443943
+time: setup=0.0066 cg=1.0033 total=1.0099 s
+RESULT prog=omp M=800 N=1200 procs=1 threads=4 iters=1018 time=1.009874 cg_time=1.003292 intw=1.848057694198e+00 maxw=9.999996749223e-01 resid=6.360e-02 restarts=0
+poisson_omp: M=800 N=1200 h1=0.00275 h2=0.00275 eps=7.5625e-06 delta=1e-06 threads=6
+iters=1018 restarts=0 last_step=9.989e-07 resid=6.360e-02 J=-8.036941092853e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8480576942  max_D|w|=0.9999996749  nodes_in_D=443943
+time: setup=0.0051 cg=0.9875 total=0.9926 s
+RESULT prog=omp M=800 N=1200 procs=1 threads=6 iters=1018 time=0.992609 cg_time=0.987482 intw=1.848057694198e+00 maxw=9.999996749223e-01 resid=6.360e-02 restarts=0
+poisson_mpi: M=800 N=1200 h1=0.00275 h2=0.00275 eps=7.5625e-06 delta=1e-06 procs=2 threads=0 (MPI thread level 1)
+decomposition 1 x 2, blocks 799..799 x 599..600 nodes, worst nx/ny ratio 1.334
+iters=1018 restarts=0 last_step=9.989e-07 resid=6.360e-02 J=-8.036941092853e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8480576942  max_D|w|=0.9999996749  nodes_in_D=443943
+time: setup=0.0100 cg=1.2113 total=1.2213 s; inside cg: halo=0.0116 allreduce=0.0329 s
+RESULT prog=mpi M=800 N=1200 procs=2 threads=0 iters=1018 time=1.221253 cg_time=1.211259 intw=1.848057694198e+00 maxw=9.999996749223e-01 resid=6.360e-02 restarts=0 decomp=1x2 halo=0.011591 allreduce=0.032902
+poisson_mpi: M=800 N=1200 h1=0.00275 h2=0.00275 eps=7.5625e-06 delta=1e-06 procs=4 threads=0 (MPI thread level 1)
+decomposition 2 x 2, blocks 399..400 x 599..600 nodes, worst nx/ny ratio 1.504
+iters=1018 restarts=0 last_step=9.989e-07 resid=6.360e-02 J=-8.036941092853e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8480576942  max_D|w|=0.9999996749  nodes_in_D=443943
+time: setup=0.0054 cg=1.0360 total=1.0414 s; inside cg: halo=0.0178 allreduce=0.0465 s
+RESULT prog=mpi M=800 N=1200 procs=4 threads=0 iters=1018 time=1.041366 cg_time=1.035992 intw=1.848057694198e+00 maxw=9.999996749223e-01 resid=6.360e-02 restarts=0 decomp=2x2 halo=0.017791 allreduce=0.046466
+poisson_mpi: M=800 N=1200 h1=0.00275 h2=0.00275 eps=7.5625e-06 delta=1e-06 procs=6 threads=0 (MPI thread level 1)
+decomposition 2 x 3, blocks 399..400 x 399..400 nodes, worst nx/ny ratio 1.003
+iters=1018 restarts=0 last_step=9.989e-07 resid=6.360e-02 J=-8.036941092853e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8480576942  max_D|w|=0.9999996749  nodes_in_D=443943
+time: setup=0.0062 cg=1.0616 total=1.0678 s; inside cg: halo=0.0200 allreduce=0.1692 s
+RESULT prog=mpi M=800 N=1200 procs=6 threads=0 iters=1018 time=1.067753 cg_time=1.061565 intw=1.848057694198e+00 maxw=9.999996749223e-01 resid=6.360e-02 restarts=0 decomp=2x3 halo=0.020001 allreduce=0.169161
+poisson_mpi: M=800 N=1200 h1=0.00275 h2=0.00275 eps=7.5625e-06 delta=1e-06 procs=2 threads=1 (MPI thread level 1)
+decomposition 1 x 2, blocks 799..799 x 599..600 nodes, worst nx/ny ratio 1.334
+iters=1018 restarts=0 last_step=9.989e-07 resid=6.360e-02 J=-8.036941092853e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8480576942  max_D|w|=0.9999996749  nodes_in_D=443943
+time: setup=0.0100 cg=1.1873 total=1.1973 s; inside cg: halo=0.0124 allreduce=0.0327 s
+RESULT prog=hyb M=800 N=1200 procs=2 threads=1 iters=1018 time=1.197295 cg_time=1.187285 intw=1.848057694198e+00 maxw=9.999996749223e-01 resid=6.360e-02 restarts=0 decomp=1x2 halo=0.012417 allreduce=0.032747
+poisson_mpi: M=800 N=1200 h1=0.00275 h2=0.00275 eps=7.5625e-06 delta=1e-06 procs=2 threads=2 (MPI thread level 1)
+decomposition 1 x 2, blocks 799..799 x 599..600 nodes, worst nx/ny ratio 1.334
+iters=1018 restarts=0 last_step=9.989e-07 resid=6.360e-02 J=-8.036941092853e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8480576942  max_D|w|=0.9999996749  nodes_in_D=443943
+time: setup=0.0056 cg=1.0234 total=1.0290 s; inside cg: halo=0.0100 allreduce=0.0137 s
+RESULT prog=hyb M=800 N=1200 procs=2 threads=2 iters=1018 time=1.028971 cg_time=1.023358 intw=1.848057694198e+00 maxw=9.999996749223e-01 resid=6.360e-02 restarts=0 decomp=1x2 halo=0.010046 allreduce=0.013680
+poisson_mpi: M=800 N=1200 h1=0.00275 h2=0.00275 eps=7.5625e-06 delta=1e-06 procs=2 threads=3 (MPI thread level 1)
+decomposition 1 x 2, blocks 799..799 x 599..600 nodes, worst nx/ny ratio 1.334
+iters=1018 restarts=0 last_step=9.989e-07 resid=6.360e-02 J=-8.036941092853e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8480576942  max_D|w|=0.9999996749  nodes_in_D=443943
+time: setup=0.0049 cg=1.0990 total=1.1040 s; inside cg: halo=0.0134 allreduce=0.0340 s
+RESULT prog=hyb M=800 N=1200 procs=2 threads=3 iters=1018 time=1.103989 cg_time=1.099044 intw=1.848057694198e+00 maxw=9.999996749223e-01 resid=6.360e-02 restarts=0 decomp=1x2 halo=0.013371 allreduce=0.033996

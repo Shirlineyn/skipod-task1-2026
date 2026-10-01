@@ -1,0 +1,64 @@
+Sender: LSF System <lsfadmin@polus-c4-ib.bmc.hpc.cs.msu.ru>
+Subject: Job 1594708: <seq_20x20> in cluster <MSUCluster> Done
+
+Job <seq_20x20> was submitted from host <polus-ib.bmc.hpc.cs.msu.ru> by user <edu-cmc-skmodel26-609-02> in cluster <MSUCluster> at Thu Oct  1 23:49:59 2026
+Job was executed on host(s) <polus-c4-ib.bmc.hpc.cs.msu.ru>, in queue <short>, as user <edu-cmc-skmodel26-609-02> in cluster <MSUCluster> at Thu Oct  1 23:49:59 2026
+</home_edu/edu-cmc-skmodel26-609/edu-cmc-skmodel26-609-02> was used as the home directory.
+</polusfs/home_edu/edu-cmc-skmodel26-609/edu-cmc-skmodel26-609-02/task1> was used as the working directory.
+Started at Thu Oct  1 23:49:59 2026
+Terminated at Thu Oct  1 23:49:59 2026
+Results reported at Thu Oct  1 23:49:59 2026
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#BSUB -J seq_20x20
+#BSUB -q short
+#BSUB -W 00:10
+#BSUB -n 1
+#BSUB -R "affinity[core(1)]"
+#BSUB -o results/polus/seq_20x20.%J.out
+#BSUB -e results/polus/seq_20x20.%J.err
+source /polusfs/setenv/setup.SMPI
+echo "job $LSB_JOBID (seq_20x20) hosts: $LSB_HOSTS"
+echo "bind cpu list: ${LSB_BIND_CPU_LIST:-none}"
+date
+./poisson_seq 20 20 --out results/polus/sol_20x20.bin
+date
+
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   0.02 sec.
+    Max Memory :                                 1 MB
+    Average Memory :                             1.00 MB
+    Total Requested Memory :                     -
+    Delta Memory :                               -
+    Max Swap :                                   -
+    Max Processes :                              1
+    Max Threads :                                1
+    Run time :                                   2 sec.
+    Turnaround time :                            0 sec.
+
+The output (if any) follows:
+
+job 1594708 (seq_20x20) hosts: polus-c4-ib.bmc.hpc.cs.msu.ru
+bind cpu list: 0,1,2,3,4,5,6,7
+Thu Oct  1 23:49:59 MSK 2026
+poisson_omp: M=20 N=20 h1=0.11 h2=0.165 eps=0.027225 delta=1e-06 threads=0
+iters=31 restarts=0 last_step=9.195e-07 resid=9.986e-05 J=-8.579841363787e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8410722750  max_D|w|=0.9961234697  nodes_in_D=178
+time: setup=0.0001 cg=0.0001 total=0.0001 s
+RESULT prog=seq M=20 N=20 procs=1 threads=0 iters=31 time=0.000148 cg_time=0.000057 intw=1.841072275012e+00 maxw=9.961234696905e-01 resid=9.986e-05 restarts=0
+solution written to results/polus/sol_20x20.bin
+Thu Oct  1 23:49:59 MSK 2026
+
+
+PS:
+
+Read file <results/polus/seq_20x20.1594708.err> for stderr output of this job.
+

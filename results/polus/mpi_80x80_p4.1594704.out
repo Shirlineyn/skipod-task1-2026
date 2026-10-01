@@ -1,0 +1,64 @@
+Sender: LSF System <lsfadmin@polus-c4-ib.bmc.hpc.cs.msu.ru>
+Subject: Job 1594704: <mpi_80x80_p4> in cluster <MSUCluster> Done
+
+Job <mpi_80x80_p4> was submitted from host <polus-ib.bmc.hpc.cs.msu.ru> by user <edu-cmc-skmodel26-609-02> in cluster <MSUCluster> at Thu Oct  1 23:49:51 2026
+Job was executed on host(s) <4*polus-c4-ib.bmc.hpc.cs.msu.ru>, in queue <short>, as user <edu-cmc-skmodel26-609-02> in cluster <MSUCluster> at Thu Oct  1 23:49:51 2026
+</home_edu/edu-cmc-skmodel26-609/edu-cmc-skmodel26-609-02> was used as the home directory.
+</polusfs/home_edu/edu-cmc-skmodel26-609/edu-cmc-skmodel26-609-02/task1> was used as the working directory.
+Started at Thu Oct  1 23:49:51 2026
+Terminated at Thu Oct  1 23:49:52 2026
+Results reported at Thu Oct  1 23:49:52 2026
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#BSUB -J mpi_80x80_p4
+#BSUB -q short
+#BSUB -W 00:10
+#BSUB -n 4
+#BSUB -R "affinity[core(1)] span[hosts=1]"
+#BSUB -o results/polus/mpi_80x80_p4.%J.out
+#BSUB -e results/polus/mpi_80x80_p4.%J.err
+source /polusfs/setenv/setup.SMPI
+echo "job $LSB_JOBID (mpi_80x80_p4) hosts: $LSB_HOSTS"
+echo "bind cpu list: ${LSB_BIND_CPU_LIST:-none}"
+date
+mpiexec ./poisson_mpi 80 80
+date
+
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   0.42 sec.
+    Max Memory :                                 1 MB
+    Average Memory :                             1.00 MB
+    Total Requested Memory :                     -
+    Delta Memory :                               -
+    Max Swap :                                   -
+    Max Processes :                              1
+    Max Threads :                                1
+    Run time :                                   2 sec.
+    Turnaround time :                            1 sec.
+
+The output (if any) follows:
+
+job 1594704 (mpi_80x80_p4) hosts: polus-c4-ib.bmc.hpc.cs.msu.ru polus-c4-ib.bmc.hpc.cs.msu.ru polus-c4-ib.bmc.hpc.cs.msu.ru polus-c4-ib.bmc.hpc.cs.msu.ru
+bind cpu list: 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31
+Thu Oct  1 23:49:51 MSK 2026
+poisson_mpi: M=80 N=80 h1=0.0275 h2=0.04125 eps=0.00170156 delta=1e-06 procs=4 threads=0 (MPI thread level 1)
+decomposition 2 x 2, blocks 39..40 x 39..40 nodes, worst nx/ny ratio 1.026
+iters=113 restarts=0 last_step=9.602e-07 resid=1.270e-03 J=-7.799800522813e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8430215569  max_D|w|=0.9998601426  nodes_in_D=2924
+time: setup=0.0004 cg=0.0020 total=0.0024 s; inside cg: halo=0.0006 allreduce=0.0006 s
+RESULT prog=mpi M=80 N=80 procs=4 threads=0 iters=113 time=0.002377 cg_time=0.001990 intw=1.843021556897e+00 maxw=9.998601426134e-01 resid=1.270e-03 restarts=0 decomp=2x2 halo=0.000597 allreduce=0.000607
+Thu Oct  1 23:49:52 MSK 2026
+
+
+PS:
+
+Read file <results/polus/mpi_80x80_p4.1594704.err> for stderr output of this job.
+
