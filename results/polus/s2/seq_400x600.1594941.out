@@ -1,0 +1,65 @@
+Sender: LSF System <lsfadmin@polus-c4-ib.bmc.hpc.cs.msu.ru>
+Subject: Job 1594941: <seq_400x600> in cluster <MSUCluster> Done
+
+Job <seq_400x600> was submitted from host <polus-ib.bmc.hpc.cs.msu.ru> by user <edu-cmc-skmodel26-609-02> in cluster <MSUCluster> at Sun Oct  4 18:44:06 2026
+Job was executed on host(s) <polus-c4-ib.bmc.hpc.cs.msu.ru>, in queue <short>, as user <edu-cmc-skmodel26-609-02> in cluster <MSUCluster> at Sun Oct  4 18:44:07 2026
+</home_edu/edu-cmc-skmodel26-609/edu-cmc-skmodel26-609-02> was used as the home directory.
+</polusfs/home_edu/edu-cmc-skmodel26-609/edu-cmc-skmodel26-609-02/task1> was used as the working directory.
+Started at Sun Oct  4 18:44:07 2026
+Terminated at Sun Oct  4 18:44:09 2026
+Results reported at Sun Oct  4 18:44:09 2026
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#BSUB -J seq_400x600
+#BSUB -q short
+#BSUB -W 00:10
+#BSUB -n 1
+#BSUB -R "affinity[core(1)]"
+#BSUB -o results/polus/s2/seq_400x600.%J.out
+#BSUB -e results/polus/s2/seq_400x600.%J.err
+#BSUB -m "polus-c3-ib polus-c4-ib"
+source /polusfs/setenv/setup.SMPI
+echo "job $LSB_JOBID (seq_400x600) hosts: $LSB_HOSTS"
+echo "bind cpu list: ${LSB_BIND_CPU_LIST:-none}"
+date
+./poisson_seq 400 600 --out results/polus/s2/sol_400x600.bin
+date
+
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   0.82 sec.
+    Max Memory :                                 21 MB
+    Average Memory :                             14.33 MB
+    Total Requested Memory :                     -
+    Delta Memory :                               -
+    Max Swap :                                   -
+    Max Processes :                              4
+    Max Threads :                                5
+    Run time :                                   4 sec.
+    Turnaround time :                            3 sec.
+
+The output (if any) follows:
+
+job 1594941 (seq_400x600) hosts: polus-c4-ib.bmc.hpc.cs.msu.ru
+bind cpu list: 0,1,2,3,4,5,6,7
+Sun Oct  4 18:44:08 MSK 2026
+poisson_omp: M=400 N=600 h1=0.0055 h2=0.0055 eps=3.025e-05 delta=1e-06 threads=0
+iters=599 restarts=0 last_step=9.615e-07 resid=1.475e-02 J=-8.010171939414e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8478477067  max_D|w|=0.9999995894  nodes_in_D=110847
+time: setup=0.0448 cg=0.7365 total=0.7814 s
+RESULT prog=seq M=400 N=600 procs=1 threads=0 iters=599 time=0.781387 cg_time=0.736544 intw=1.847847706716e+00 maxw=9.999995893658e-01 resid=1.475e-02 restarts=0
+solution written to results/polus/s2/sol_400x600.bin
+Sun Oct  4 18:44:09 MSK 2026
+
+
+PS:
+
+Read file <results/polus/s2/seq_400x600.1594941.err> for stderr output of this job.
+

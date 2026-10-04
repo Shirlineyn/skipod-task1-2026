@@ -31,13 +31,19 @@
 # Поэтому по умолчанию все задания идут только на c3 и c4 (#BSUB -m);
 # двух узлов хватает и для 32 процессов.
 #
+# Монопольный узел. В серии 2 разброс между повторами доходил до 58%:
+# медленные повторы шли одновременно с другой моей задачей на том же узле
+# (ядра разные, но память общая, а CG упирается в пропускную способность
+# памяти). С EXCLUSIVE=1 каждое задание забирает узел целиком (#BSUB -x).
+#
 # Серия. Логи пишутся в results/polus/$SERIES, чтобы серии не смешивались:
-#   SERIES=s3 bash jobs/gen_jobs.sh
+#   SERIES=s4 EXCLUSIVE=0 bash jobs/gen_jobs.sh
 set -euo pipefail
 cd "$(dirname "$0")"
 rm -rf lsf
 WTIME=00:10
-SERIES=${SERIES:-s2}
+SERIES=${SERIES:-s3}
+EXCLUSIVE=${EXCLUSIVE:-1}
 OUT=results/polus/$SERIES
 HOSTS="polus-c3-ib polus-c4-ib"
 mkdir -p "../$OUT"
@@ -45,8 +51,11 @@ mkdir -p "../$OUT"
 # emit группа имя число_слотов "строка -R" команда [доп. строки #BSUB]
 emit() {
     local group=$1 name=$2 slots=$3 res=$4 cmd=$5
+    local excl=""
+    [ "$EXCLUSIVE" = 1 ] && excl="#BSUB -x
+"
     local extra=${6:-"#BSUB -m \"$HOSTS\"
-"}
+$excl"}
     mkdir -p "lsf/$group"
     cat > "lsf/$group/$name.lsf" <<EOF
 #BSUB -J $name
