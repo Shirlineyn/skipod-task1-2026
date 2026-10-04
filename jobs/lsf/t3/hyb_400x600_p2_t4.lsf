@@ -3,8 +3,9 @@
 #BSUB -W 00:10
 #BSUB -n 2
 #BSUB -R "affinity[core(4)] span[hosts=1]"
-#BSUB -o results/polus/hyb_400x600_p2_t4.%J.out
-#BSUB -e results/polus/hyb_400x600_p2_t4.%J.err
+#BSUB -o results/polus/s2/hyb_400x600_p2_t4.%J.out
+#BSUB -e results/polus/s2/hyb_400x600_p2_t4.%J.err
+#BSUB -m "polus-c3-ib polus-c4-ib"
 source /polusfs/setenv/setup.SMPI
 echo "job $LSB_JOBID (hyb_400x600_p2_t4) hosts: $LSB_HOSTS"
 echo "bind cpu list: ${LSB_BIND_CPU_LIST:-none}"

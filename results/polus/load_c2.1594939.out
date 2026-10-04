@@ -1,0 +1,64 @@
+Sender: LSF System <lsfadmin@polus-c2-ib.bmc.hpc.cs.msu.ru>
+Subject: Job 1594939: <load_c2> in cluster <MSUCluster> Done
+
+Job <load_c2> was submitted from host <polus-ib.bmc.hpc.cs.msu.ru> by user <edu-cmc-skmodel26-609-02> in cluster <MSUCluster> at Sun Oct  4 18:42:46 2026
+Job was executed on host(s) <polus-c2-ib.bmc.hpc.cs.msu.ru>, in queue <short>, as user <edu-cmc-skmodel26-609-02> in cluster <MSUCluster> at Sun Oct  4 18:42:46 2026
+</home_edu/edu-cmc-skmodel26-609/edu-cmc-skmodel26-609-02> was used as the home directory.
+</polusfs/home_edu/edu-cmc-skmodel26-609/edu-cmc-skmodel26-609-02/task1> was used as the working directory.
+Started at Sun Oct  4 18:42:46 2026
+Terminated at Sun Oct  4 18:42:47 2026
+Results reported at Sun Oct  4 18:42:47 2026
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+uptime; top -b -n 1 | head -20; ps -eo user,pcpu,etime,comm --sort=-pcpu | head -8
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   0.15 sec.
+    Max Memory :                                 1 MB
+    Average Memory :                             1.00 MB
+    Total Requested Memory :                     -
+    Delta Memory :                               -
+    Max Swap :                                   -
+    Max Processes :                              1
+    Max Threads :                                1
+    Run time :                                   6 sec.
+    Turnaround time :                            1 sec.
+
+The output (if any) follows:
+
+ 18:42:46 up 46 days,  1:47,  0 users,  load average: 0.12, 0.24, 0.14
+top - 18:42:46 up 46 days,  1:47,  0 users,  load average: 0.12, 0.24, 0.14
+Tasks: 1279 total,   1 running, 1278 sleeping,   0 stopped,   0 zombie
+%Cpu(s):  0.1 us,  0.1 sy,  0.0 ni, 99.8 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st
+KiB Mem : 26365337+total, 25417843+free,  6827072 used,  2647872 buff/cache
+KiB Swap:        0 total,        0 free,        0 used. 25422035+avail Mem 
+
+   PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND
+ 61009 edu-cmc+  20   0  119936   9664   4544 R  16.7  0.0   0:00.05 top
+     1 root      20   0  168064  19456   5184 S   0.0  0.0   3:03.33 systemd
+     2 root      20   0       0      0      0 S   0.0  0.0   0:01.38 kthreadd
+     3 root      20   0       0      0      0 S   0.0  0.0   0:00.07 ksoftirqd+
+     4 root      20   0       0      0      0 S   0.0  0.0   0:00.00 kworker/0+
+     8 root      20   0       0      0      0 S   0.0  0.0   0:19.37 kworker/u+
+     9 root      rt   0       0      0      0 S   0.0  0.0   0:00.30 migration+
+    10 root      20   0       0      0      0 S   0.0  0.0   0:00.00 rcu_bh
+    11 root      20   0       0      0      0 S   0.0  0.0   4:34.40 rcu_sched
+    12 root      rt   0       0      0      0 S   0.0  0.0   0:09.78 watchdog/0
+    13 root      rt   0       0      0      0 S   0.0  0.0   0:09.42 watchdog/1
+    14 root      rt   0       0      0      0 S   0.0  0.0   0:00.62 migration+
+    15 root      20   0       0      0      0 S   0.0  0.0   0:00.13 ksoftirqd+
+USER     %CPU     ELAPSED COMMAND
+root      6.0       00:10 mmsdrcli
+root      0.1 46-01:47:22 md2_raid1
+root      0.1 46-01:47:05 dockerd
+root      0.1 32-19:56:57 elim.gpu.topolo
+root      0.0 46-01:47:27 systemd
+root      0.0 46-01:47:27 kthreadd
+root      0.0 46-01:47:27 ksoftirqd/0

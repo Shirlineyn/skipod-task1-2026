@@ -1,0 +1,64 @@
+Sender: LSF System <lsfadmin@polus-c4-ib.bmc.hpc.cs.msu.ru>
+Subject: Job 1594934: <node_c4_seq_800x1200_r1> in cluster <MSUCluster> Done
+
+Job <node_c4_seq_800x1200_r1> was submitted from host <polus-ib.bmc.hpc.cs.msu.ru> by user <edu-cmc-skmodel26-609-02> in cluster <MSUCluster> at Sun Oct  4 18:41:43 2026
+Job was executed on host(s) <polus-c4-ib.bmc.hpc.cs.msu.ru>, in queue <short>, as user <edu-cmc-skmodel26-609-02> in cluster <MSUCluster> at Sun Oct  4 18:41:44 2026
+</home_edu/edu-cmc-skmodel26-609/edu-cmc-skmodel26-609-02> was used as the home directory.
+</polusfs/home_edu/edu-cmc-skmodel26-609/edu-cmc-skmodel26-609-02/task1> was used as the working directory.
+Started at Sun Oct  4 18:41:44 2026
+Terminated at Sun Oct  4 18:41:50 2026
+Results reported at Sun Oct  4 18:41:50 2026
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#BSUB -J node_c4_seq_800x1200_r1
+#BSUB -q short
+#BSUB -W 00:10
+#BSUB -n 1
+#BSUB -R "affinity[core(1)]"
+#BSUB -o results/polus/node_c4_seq_800x1200_r1.%J.out
+#BSUB -e results/polus/node_c4_seq_800x1200_r1.%J.err
+#BSUB -m polus-c4-ib
+source /polusfs/setenv/setup.SMPI
+echo "job $LSB_JOBID (node_c4_seq_800x1200_r1) hosts: $LSB_HOSTS"
+echo "bind cpu list: ${LSB_BIND_CPU_LIST:-none}"
+date
+./poisson_seq 800 1200
+date
+
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   5.01 sec.
+    Max Memory :                                 65 MB
+    Average Memory :                             43.67 MB
+    Total Requested Memory :                     -
+    Delta Memory :                               -
+    Max Swap :                                   -
+    Max Processes :                              4
+    Max Threads :                                5
+    Run time :                                   6 sec.
+    Turnaround time :                            7 sec.
+
+The output (if any) follows:
+
+job 1594934 (node_c4_seq_800x1200_r1) hosts: polus-c4-ib.bmc.hpc.cs.msu.ru
+bind cpu list: 0,1,2,3,4,5,6,7
+Sun Oct  4 18:41:45 MSK 2026
+poisson_omp: M=800 N=1200 h1=0.00275 h2=0.00275 eps=7.5625e-06 delta=1e-06 threads=0
+iters=1018 restarts=0 last_step=9.989e-07 resid=6.360e-02 J=-8.036941092861e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8480576942  max_D|w|=0.9999996749  nodes_in_D=443943
+time: setup=0.1784 cg=4.7819 total=4.9604 s
+RESULT prog=seq M=800 N=1200 procs=1 threads=0 iters=1018 time=4.960378 cg_time=4.781934 intw=1.848057694198e+00 maxw=9.999996749223e-01 resid=6.360e-02 restarts=0
+Sun Oct  4 18:41:50 MSK 2026
+
+
+PS:
+
+Read file <results/polus/node_c4_seq_800x1200_r1.1594934.err> for stderr output of this job.
+

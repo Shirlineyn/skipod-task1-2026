@@ -3,8 +3,9 @@
 #BSUB -W 00:10
 #BSUB -n 1
 #BSUB -R "affinity[core(1)]"
-#BSUB -o results/polus/omp_80x80_t1.%J.out
-#BSUB -e results/polus/omp_80x80_t1.%J.err
+#BSUB -o results/polus/s2/omp_80x80_t1.%J.out
+#BSUB -e results/polus/s2/omp_80x80_t1.%J.err
+#BSUB -m "polus-c3-ib polus-c4-ib"
 source /polusfs/setenv/setup.SMPI
 echo "job $LSB_JOBID (omp_80x80_t1) hosts: $LSB_HOSTS"
 echo "bind cpu list: ${LSB_BIND_CPU_LIST:-none}"

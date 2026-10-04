@@ -9,7 +9,8 @@
 results/*.out), группирует их и печатает таблицы в Markdown. Ускорение
 считается относительно последовательной программы (prog=seq) на той же
 сетке: S = T_seq / T. Если один и тот же запуск повторялся, берётся
-минимальное время — оно меньше всего искажено чужой нагрузкой.
+минимальное время — оно меньше всего искажено чужой нагрузкой, — а в
+столбце «Повт.» указано число повторов и разброс (max - min) / min.
 
   uv run tools/collect.py results/*.out            # таблицы в stdout
   uv run tools/collect.py --plot speedup.png results/*.out
@@ -47,6 +48,13 @@ def best(runs, key):
     return min(runs[key])
 
 
+def spread(runs, key):
+    ts = [t for t, _, _ in runs.get(key, [])]
+    if len(ts) < 2:
+        return str(len(ts)) if ts else "—"
+    return f"{len(ts)}, {100 * (max(ts) - min(ts)) / min(ts):.0f}%"
+
+
 def fmt(t):
     return "—" if t is None else f"{t:.4f}"
 
@@ -69,7 +77,8 @@ def main():
 
     base = {g: best(runs, ("seq", g, 1, 0)) for g in ("400x600", "800x1200")}
     print("Последовательная программа: " + ", ".join(
-        f"{g}: {fmt(b[0]) if b else '—'} с, {b[1] if b else '—'} итераций" for g, b in base.items()))
+        f"{g}: {fmt(b[0]) if b else '—'} с, {b[1] if b else '—'} итераций, повт. {spread(runs, ('seq', g, 1, 0))}"
+        for g, b in base.items()))
     print()
 
     def speed(g, r):
@@ -79,21 +88,24 @@ def main():
 
     rows = []
     for t, g in ROW_OMP:
-        r = best(runs, ("omp", g, 1, t))
-        rows.append([str(t), g.replace("x", "×"), str(r[1]) if r else "—", fmt(r and r[0]), speed(g, r)])
-    print(table("Таблица 1. OpenMP", ["Нитей", "Сетка", "Итераций", "Время, с", "Ускорение"], rows))
+        k = ("omp", g, 1, t)
+        r = best(runs, k)
+        rows.append([str(t), g.replace("x", "×"), str(r[1]) if r else "—", fmt(r and r[0]), speed(g, r), spread(runs, k)])
+    print(table("Таблица 1. OpenMP", ["Нитей", "Сетка", "Итераций", "Время, с", "Ускорение", "Повт."], rows))
 
     rows = []
     for p, g in ROW_MPI:
-        r = best(runs, ("mpi", g, p, 0))
-        rows.append([str(p), g.replace("x", "×"), str(r[1]) if r else "—", fmt(r and r[0]), speed(g, r)])
-    print(table("Таблица 2. MPI", ["Процессов", "Сетка", "Итераций", "Время, с", "Ускорение"], rows))
+        k = ("mpi", g, p, 0)
+        r = best(runs, k)
+        rows.append([str(p), g.replace("x", "×"), str(r[1]) if r else "—", fmt(r and r[0]), speed(g, r), spread(runs, k)])
+    print(table("Таблица 2. MPI", ["Процессов", "Сетка", "Итераций", "Время, с", "Ускорение", "Повт."], rows))
 
     rows = []
     for p, t, g in ROW_HYB:
-        r = best(runs, ("hyb", g, p, t))
-        rows.append([str(p), str(t), g.replace("x", "×"), str(r[1]) if r else "—", fmt(r and r[0]), speed(g, r)])
-    print(table("Таблица 3. MPI+OpenMP", ["Процессов", "Нитей", "Сетка", "Итераций", "Время, с", "Ускорение"], rows))
+        k = ("hyb", g, p, t)
+        r = best(runs, k)
+        rows.append([str(p), str(t), g.replace("x", "×"), str(r[1]) if r else "—", fmt(r and r[0]), speed(g, r), spread(runs, k)])
+    print(table("Таблица 3. MPI+OpenMP", ["Процессов", "Нитей", "Сетка", "Итераций", "Время, с", "Ускорение", "Повт."], rows))
 
     if a.plot:
         import matplotlib

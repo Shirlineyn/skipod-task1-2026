@@ -1,0 +1,39 @@
+Sender: LSF System <lsfadmin@polus-c4-ib.bmc.hpc.cs.msu.ru>
+Subject: Job 1594938: <cpufreq_c4> in cluster <MSUCluster> Done
+
+Job <cpufreq_c4> was submitted from host <polus-ib.bmc.hpc.cs.msu.ru> by user <edu-cmc-skmodel26-609-02> in cluster <MSUCluster> at Sun Oct  4 18:42:24 2026
+Job was executed on host(s) <polus-c4-ib.bmc.hpc.cs.msu.ru>, in queue <short>, as user <edu-cmc-skmodel26-609-02> in cluster <MSUCluster> at Sun Oct  4 18:42:25 2026
+</home_edu/edu-cmc-skmodel26-609/edu-cmc-skmodel26-609-02> was used as the home directory.
+</polusfs/home_edu/edu-cmc-skmodel26-609/edu-cmc-skmodel26-609-02/task1> was used as the working directory.
+Started at Sun Oct  4 18:42:25 2026
+Terminated at Sun Oct  4 18:42:26 2026
+Results reported at Sun Oct  4 18:42:26 2026
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+grep -E "^clock" /proc/cpuinfo | sort | uniq -c; ppc64_cpu --frequency -t 3 2>&1; cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq 2>&1
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   0.02 sec.
+    Max Memory :                                 1 MB
+    Average Memory :                             1.00 MB
+    Total Requested Memory :                     -
+    Delta Memory :                               -
+    Max Swap :                                   -
+    Max Processes :                              1
+    Max Threads :                                1
+    Run time :                                   5 sec.
+    Turnaround time :                            2 sec.
+
+The output (if any) follows:
+
+    160 clock		: 4023.000000MHz
+/home_edu/edu-cmc-skmodel26-609/edu-cmc-skmodel26-609-02/.lsbatch/1791128544.1594938: line 8: ppc64_cpu: command not found
+performance
+4023000

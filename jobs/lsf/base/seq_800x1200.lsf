@@ -3,11 +3,12 @@
 #BSUB -W 00:10
 #BSUB -n 1
 #BSUB -R "affinity[core(1)]"
-#BSUB -o results/polus/seq_800x1200.%J.out
-#BSUB -e results/polus/seq_800x1200.%J.err
+#BSUB -o results/polus/s2/seq_800x1200.%J.out
+#BSUB -e results/polus/s2/seq_800x1200.%J.err
+#BSUB -m "polus-c3-ib polus-c4-ib"
 source /polusfs/setenv/setup.SMPI
 echo "job $LSB_JOBID (seq_800x1200) hosts: $LSB_HOSTS"
 echo "bind cpu list: ${LSB_BIND_CPU_LIST:-none}"
 date
-./poisson_seq 800 1200 --out results/polus/sol_800x1200.bin
+./poisson_seq 800 1200 --out results/polus/s2/sol_800x1200.bin
 date

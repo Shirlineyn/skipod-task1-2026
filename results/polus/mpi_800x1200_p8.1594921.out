@@ -1,0 +1,64 @@
+Sender: LSF System <lsfadmin@polus-c2-ib.bmc.hpc.cs.msu.ru>
+Subject: Job 1594921: <mpi_800x1200_p8> in cluster <MSUCluster> Done
+
+Job <mpi_800x1200_p8> was submitted from host <polus-ib.bmc.hpc.cs.msu.ru> by user <edu-cmc-skmodel26-609-02> in cluster <MSUCluster> at Sun Oct  4 18:39:12 2026
+Job was executed on host(s) <8*polus-c2-ib.bmc.hpc.cs.msu.ru>, in queue <short>, as user <edu-cmc-skmodel26-609-02> in cluster <MSUCluster> at Sun Oct  4 18:39:12 2026
+</home_edu/edu-cmc-skmodel26-609/edu-cmc-skmodel26-609-02> was used as the home directory.
+</polusfs/home_edu/edu-cmc-skmodel26-609/edu-cmc-skmodel26-609-02/task1> was used as the working directory.
+Started at Sun Oct  4 18:39:12 2026
+Terminated at Sun Oct  4 18:39:14 2026
+Results reported at Sun Oct  4 18:39:14 2026
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#BSUB -J mpi_800x1200_p8
+#BSUB -q short
+#BSUB -W 00:10
+#BSUB -n 8
+#BSUB -R "affinity[core(1)] span[hosts=1]"
+#BSUB -o results/polus/mpi_800x1200_p8.%J.out
+#BSUB -e results/polus/mpi_800x1200_p8.%J.err
+source /polusfs/setenv/setup.SMPI
+echo "job $LSB_JOBID (mpi_800x1200_p8) hosts: $LSB_HOSTS"
+echo "bind cpu list: ${LSB_BIND_CPU_LIST:-none}"
+date
+mpiexec ./poisson_mpi 800 1200
+date
+
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   9.52 sec.
+    Max Memory :                                 497 MB
+    Average Memory :                             331.67 MB
+    Total Requested Memory :                     -
+    Delta Memory :                               -
+    Max Swap :                                   -
+    Max Processes :                              12
+    Max Threads :                                33
+    Run time :                                   2 sec.
+    Turnaround time :                            2 sec.
+
+The output (if any) follows:
+
+job 1594921 (mpi_800x1200_p8) hosts: polus-c2-ib.bmc.hpc.cs.msu.ru polus-c2-ib.bmc.hpc.cs.msu.ru polus-c2-ib.bmc.hpc.cs.msu.ru polus-c2-ib.bmc.hpc.cs.msu.ru polus-c2-ib.bmc.hpc.cs.msu.ru polus-c2-ib.bmc.hpc.cs.msu.ru polus-c2-ib.bmc.hpc.cs.msu.ru polus-c2-ib.bmc.hpc.cs.msu.ru
+bind cpu list: 32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95
+Sun Oct  4 18:39:12 MSK 2026
+poisson_mpi: M=800 N=1200 h1=0.00275 h2=0.00275 eps=7.5625e-06 delta=1e-06 procs=8 threads=0 (MPI thread level 1)
+decomposition 2 x 4, blocks 399..400 x 299..300 nodes, worst nx/ny ratio 1.338
+iters=1018 restarts=0 last_step=9.989e-07 resid=6.360e-02 J=-8.036941092861e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8480576942  max_D|w|=0.9999996749  nodes_in_D=443943
+time: setup=0.0469 cg=1.0267 total=1.0736 s; inside cg: halo=0.0401 allreduce=0.0549 s
+RESULT prog=mpi M=800 N=1200 procs=8 threads=0 iters=1018 time=1.073582 cg_time=1.026684 intw=1.848057694198e+00 maxw=9.999996749223e-01 resid=6.360e-02 restarts=0 decomp=2x4 halo=0.040061 allreduce=0.054919
+Sun Oct  4 18:39:14 MSK 2026
+
+
+PS:
+
+Read file <results/polus/mpi_800x1200_p8.1594921.err> for stderr output of this job.
+
