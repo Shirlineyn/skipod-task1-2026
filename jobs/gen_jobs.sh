@@ -19,6 +19,14 @@
 #           не садятся, а places замедляет в 90-400 раз (XL ставит все
 #           процессы узла на одни и те же ядра). Группа оставлена как
 #           воспроизводимый опыт;
+#   wait  — режим ожидания нитей OpenMP для гибрида 4xT на 800x1200
+#           (T = 1, 2, 4): default — как в t3, active — OMP_WAIT_POLICY=ACTIVE
+#           (нити между параллельными областями крутятся, а не засыпают),
+#           passive — OMP_WAIT_POLICY=PASSIVE. Рядом для сравнения MPI на 4 и
+#           8 процессах. Везде OMP_DISPLAY_ENV=true — среда XL печатает в .err
+#           действующие настройки (так видно, что параметр подхватился, и
+#           видны значения XLSMPOPTS spins/yields по умолчанию). Проверка
+#           гипотезы серии 4: гибрид 4x2 теряет на ожидании в allreduce;
 #   nodes — одна и та же последовательная задача на каждом узле (-m), по
 #           два раза: в серии 1 все прогоны на polus-c2 были в ~1.6 раза
 #           медленнее, чем на c3 и c4.
@@ -51,7 +59,7 @@ set -euo pipefail
 cd "$(dirname "$0")"
 rm -rf lsf
 WTIME=00:10
-SERIES=${SERIES:-s4}
+SERIES=${SERIES:-s5}
 EXCLUSIVE=${EXCLUSIVE:-1}
 OUT=results/polus/$SERIES
 HOSTS="polus-c3-ib polus-c4-ib"
@@ -142,6 +150,25 @@ for v in free places; do
     for t in 1 2 4 8; do hyb_bind 400 600 2 $t $v; done
     for t in 1 2 4 8; do hyb_bind 800 1200 4 $t $v; done
 done
+
+# wait: режим ожидания нитей в гибриде
+hyb_wait() {  # M N P T вариант
+    local M=$1 N=$2 P=$3 T=$4 v=$5 pol=""
+    case $v in
+        active)  pol=" OMP_WAIT_POLICY=ACTIVE" ;;
+        passive) pol=" OMP_WAIT_POLICY=PASSIVE" ;;
+    esac
+    local fwd="-x OMP_NUM_THREADS -x OMP_DISPLAY_ENV"
+    [ -n "$pol" ] && fwd="$fwd -x OMP_WAIT_POLICY"
+    emit wait "hyb_${M}x${N}_p${P}_t${T}_$v" "$P" "affinity[core($T)] span[hosts=1]" \
+"export OMP_NUM_THREADS=$T OMP_DISPLAY_ENV=true$pol
+mpiexec $fwd ./poisson_hyb $M $N --binding"
+}
+for v in default active passive; do
+    for t in 1 2 4; do hyb_wait 800 1200 4 $t $v; done
+done
+mpi_job wait 800 1200 4
+mpi_job wait 800 1200 8
 
 # Таблицы 1-3
 for t in 2 4 8 16; do omp_job t1 400 600 $t; done

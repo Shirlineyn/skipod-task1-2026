@@ -3,8 +3,8 @@
 #BSUB -W 00:10
 #BSUB -n 4
 #BSUB -R "affinity[core(1)] span[hosts=1]"
-#BSUB -o results/polus/s4/mpi_400x600_p4.%J.out
-#BSUB -e results/polus/s4/mpi_400x600_p4.%J.err
+#BSUB -o results/polus/s5/mpi_400x600_p4.%J.out
+#BSUB -e results/polus/s5/mpi_400x600_p4.%J.err
 #BSUB -m "polus-c3-ib polus-c4-ib"
 #BSUB -x
 source /polusfs/setenv/setup.SMPI

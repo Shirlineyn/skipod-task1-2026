@@ -3,8 +3,8 @@
 #BSUB -W 00:10
 #BSUB -n 1
 #BSUB -R "affinity[core(1)]"
-#BSUB -o results/polus/s4/node_c3_seq_800x1200_r2.%J.out
-#BSUB -e results/polus/s4/node_c3_seq_800x1200_r2.%J.err
+#BSUB -o results/polus/s5/node_c3_seq_800x1200_r2.%J.out
+#BSUB -e results/polus/s5/node_c3_seq_800x1200_r2.%J.err
 #BSUB -m polus-c3-ib
 source /polusfs/setenv/setup.SMPI
 echo "job $LSB_JOBID (node_c3_seq_800x1200_r2) hosts: $LSB_HOSTS"

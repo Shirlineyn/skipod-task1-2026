@@ -1,0 +1,16 @@
+#BSUB -J hyb_800x1200_p4_t2_default
+#BSUB -q short
+#BSUB -W 00:10
+#BSUB -n 4
+#BSUB -R "affinity[core(2)] span[hosts=1]"
+#BSUB -o results/polus/s5/hyb_800x1200_p4_t2_default.%J.out
+#BSUB -e results/polus/s5/hyb_800x1200_p4_t2_default.%J.err
+#BSUB -m "polus-c3-ib polus-c4-ib"
+#BSUB -x
+source /polusfs/setenv/setup.SMPI
+echo "job $LSB_JOBID (hyb_800x1200_p4_t2_default) hosts: $LSB_HOSTS"
+echo "bind cpu list: ${LSB_BIND_CPU_LIST:-none}"
+date
+export OMP_NUM_THREADS=2 OMP_DISPLAY_ENV=true
+mpiexec -x OMP_NUM_THREADS -x OMP_DISPLAY_ENV ./poisson_hyb 800 1200 --binding
+date
