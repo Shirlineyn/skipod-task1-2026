@@ -70,6 +70,8 @@ int main(int argc, char** argv)
                 omp_threads() ? "omp" : "seq", gr.M, gr.N, omp_threads(), res.iters, t2 - t0,
                 t2 - t1, st[0], st[1], res.resid, res.restarts);
 
+    if (opt.binding) std::printf("binding: %s\n", thread_cpus().c_str());
+
     if (!opt.out.empty()) {
         std::vector<double> w;
         fill_v0(gr, w);

@@ -222,6 +222,23 @@ int main(int argc, char** argv)
                     tm[2], tm[3]);
     }
 
+    if (opt.binding) {
+        // Строки всех процессов собираются на процессе 0, чтобы не перемешались.
+        const int L = 1024;
+        std::string mine = thread_cpus();
+        std::vector<char> buf(L, 0), all(rank == 0 ? (size_t)L * size : 0);
+        std::strncpy(&buf[0], mine.c_str(), L - 1);
+        char host[MPI_MAX_PROCESSOR_NAME] = {0};  // MPI пишет сюда до MPI_MAX_PROCESSOR_NAME байт
+        int hl;
+        MPI_Get_processor_name(host, &hl);
+        std::string tagged = std::string(host).substr(0, std::string(host).find('.')) + ": " + &buf[0];
+        std::fill(buf.begin(), buf.end(), 0);
+        std::strncpy(&buf[0], tagged.c_str(), L - 1);
+        MPI_Gather(&buf[0], L, MPI_CHAR, rank == 0 ? &all[0] : 0, L, MPI_CHAR, 0, cart);
+        if (rank == 0)
+            for (int r = 0; r < size; ++r) std::printf("binding rank %d %s\n", r, &all[(size_t)r * L]);
+    }
+
     if (!opt.out.empty()) {
         // Сбор поля d на процессе 0: сначала геометрия блоков, потом значения.
         int meta[4] = {bl.nx, bl.ny, bl.i0, bl.j0};

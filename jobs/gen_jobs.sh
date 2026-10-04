@@ -10,6 +10,15 @@
 #           1/2/4 процессах, 1 и 2 процессах по 4 нити;
 #   base  — последовательная программа на сетках таблиц (база для ускорения);
 #   t1, t2, t3 — строки таблиц 1 (OpenMP), 2 (MPI), 3 (MPI+OpenMP);
+#   bind  — гибрид из таблицы 3 в двух вариантах: free — как в t3, нити
+#           процесса не привязаны; places — OMP_PLACES=cores,
+#           OMP_PROC_BIND=close. Оба с --binding: программа печатает, на
+#           каком CPU сидит каждая нить. В серии 3 гибрид 4x2 на 800x1200
+#           дал эффективность 0.79 против 0.91 у 4x4 — гипотеза, что нити
+#           без привязки садятся на одно физическое ядро. Итог серии 4:
+#           не садятся, а places замедляет в 90-400 раз (XL ставит все
+#           процессы узла на одни и те же ядра). Группа оставлена как
+#           воспроизводимый опыт;
 #   nodes — одна и та же последовательная задача на каждом узле (-m), по
 #           два раза: в серии 1 все прогоны на polus-c2 были в ~1.6 раза
 #           медленнее, чем на c3 и c4.
@@ -42,7 +51,7 @@ set -euo pipefail
 cd "$(dirname "$0")"
 rm -rf lsf
 WTIME=00:10
-SERIES=${SERIES:-s3}
+SERIES=${SERIES:-s4}
 EXCLUSIVE=${EXCLUSIVE:-1}
 OUT=results/polus/$SERIES
 HOSTS="polus-c3-ib polus-c4-ib"
@@ -114,6 +123,25 @@ for p in 1 2; do hyb_job check 80 80 $p 4; done
 # base: последовательная программа на сетках таблиц; на крупной — рисунок
 seq_job base 400 600 --out $OUT/sol_400x600.bin
 seq_job base 800 1200 --out $OUT/sol_800x1200.bin
+
+# bind: гибрид без привязки нитей и с OMP_PLACES=cores
+hyb_bind() {  # M N P T вариант
+    local M=$1 N=$2 P=$3 T=$4 v=$5 span="span[hosts=1]" env
+    [ $((P * T)) -gt 20 ] && span="span[ptile=$((P / 2))]"
+    if [ "$v" = places ]; then
+        env="export OMP_NUM_THREADS=$T OMP_PLACES=cores OMP_PROC_BIND=close
+mpiexec -x OMP_NUM_THREADS -x OMP_PLACES -x OMP_PROC_BIND"
+    else
+        env="export OMP_NUM_THREADS=$T
+mpiexec -x OMP_NUM_THREADS"
+    fi
+    emit bind "hyb_${M}x${N}_p${P}_t${T}_$v" "$P" "affinity[core($T)] $span" \
+        "$env ./poisson_hyb $M $N --binding"
+}
+for v in free places; do
+    for t in 1 2 4 8; do hyb_bind 400 600 2 $t $v; done
+    for t in 1 2 4 8; do hyb_bind 800 1200 4 $t $v; done
+done
 
 # Таблицы 1-3
 for t in 2 4 8 16; do omp_job t1 400 600 $t; done

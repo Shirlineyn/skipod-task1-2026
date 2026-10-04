@@ -9,6 +9,10 @@
 #include <string>
 #include <vector>
 #include <sys/time.h>
+#include <set>
+#ifdef __linux__
+#include <sched.h>
+#endif
 #ifdef _OPENMP
 #include <omp.h>
 #endif
@@ -19,18 +23,20 @@ struct Options {
     double delta;
     long maxit;        // 0 — по умолчанию (M-1)(N-1)
     int verbose;
+    int binding;       // печатать, на каких CPU сидят нити
     std::string out;   // файл для решения; пусто — не писать
 };
 
 inline void usage(const char* prog)
 {
     std::fprintf(stderr,
-                 "usage: %s M N [--delta D] [--maxit K] [--verbose K] [--out FILE]\n"
+                 "usage: %s M N [--delta D] [--maxit K] [--verbose K] [--out FILE] [--binding]\n"
                  "  M, N      число отрезков сетки по x и y\n"
                  "  --delta   критерий остановки ||w(k+1)-w(k)||_E < D (по умолчанию 1e-6)\n"
                  "  --maxit   предел итераций (по умолчанию (M-1)(N-1))\n"
                  "  --verbose печатать каждую K-ю итерацию\n"
-                 "  --out     записать решение на всей сетке в двоичный файл\n",
+                 "  --out     записать решение на всей сетке в двоичный файл\n"
+                 "  --binding напечатать логические CPU нитей OpenMP после расчёта\n",
                  prog);
 }
 
@@ -42,11 +48,13 @@ inline bool parse_options(int argc, char** argv, Options& o)
     o.delta = 1e-6;
     o.maxit = 0;
     o.verbose = 0;
+    o.binding = 0;
     for (int a = 3; a < argc; ++a) {
         if (!std::strcmp(argv[a], "--delta") && a + 1 < argc) o.delta = std::atof(argv[++a]);
         else if (!std::strcmp(argv[a], "--maxit") && a + 1 < argc) o.maxit = std::atol(argv[++a]);
         else if (!std::strcmp(argv[a], "--verbose") && a + 1 < argc) o.verbose = std::atoi(argv[++a]);
         else if (!std::strcmp(argv[a], "--out") && a + 1 < argc) o.out = argv[++a];
+        else if (!std::strcmp(argv[a], "--binding")) o.binding = 1;
         else return false;
     }
     if (o.M < 2 || o.N < 2) return false;
@@ -73,6 +81,41 @@ inline int omp_threads()
 #else
     return 0;  // собрано без OpenMP
 #endif
+}
+
+// Где сейчас работают нити: "cpu/ядро" для каждой нити и число разных
+// физических ядер. На POWER8 у ядра 8 аппаратных нитей, ядро = cpu / 8
+// (CPUS_PER_CORE). Две нити процесса на одном ядре делят его конвейер —
+// так проверяется, разошлись ли нити по ядрам без явной привязки.
+const int CPUS_PER_CORE = 8;
+
+inline std::string thread_cpus()
+{
+    const int n = omp_threads() > 0 ? omp_threads() : 1;
+    std::vector<int> cpu(n, -1);
+#pragma omp parallel
+    {
+#ifdef _OPENMP
+        const int t = omp_get_thread_num();
+#else
+        const int t = 0;
+#endif
+#ifdef __linux__
+        cpu[t] = sched_getcpu();
+#else
+        cpu[t] = -1;  // sched_getcpu есть только в Linux
+#endif
+    }
+    std::string s;
+    std::set<int> cores;
+    char buf[32];
+    for (int t = 0; t < n; ++t) {
+        std::snprintf(buf, sizeof buf, "%s%d/%d", t ? " " : "", cpu[t], cpu[t] / CPUS_PER_CORE);
+        s += buf;
+        cores.insert(cpu[t] / CPUS_PER_CORE);
+    }
+    std::snprintf(buf, sizeof buf, "  [%d cores for %d threads]", (int)cores.size(), n);
+    return s + buf;
 }
 
 // Двоичный файл решения: int32 M, N; double A1, B1, A2, B2;

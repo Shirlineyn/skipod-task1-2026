@@ -1,0 +1,69 @@
+Sender: LSF System <lsfadmin@polus-c3-ib.bmc.hpc.cs.msu.ru>
+Subject: Job 1595120: <hyb_400x600_p2_t8_places> in cluster <MSUCluster> Done
+
+Job <hyb_400x600_p2_t8_places> was submitted from host <polus-ib.bmc.hpc.cs.msu.ru> by user <edu-cmc-skmodel26-609-02> in cluster <MSUCluster> at Sun Oct  4 19:09:53 2026
+Job was executed on host(s) <2*polus-c3-ib.bmc.hpc.cs.msu.ru>, in queue <short>, as user <edu-cmc-skmodel26-609-02> in cluster <MSUCluster> at Sun Oct  4 19:09:54 2026
+</home_edu/edu-cmc-skmodel26-609/edu-cmc-skmodel26-609-02> was used as the home directory.
+</polusfs/home_edu/edu-cmc-skmodel26-609/edu-cmc-skmodel26-609-02/task1> was used as the working directory.
+Started at Sun Oct  4 19:09:54 2026
+Terminated at Sun Oct  4 19:10:59 2026
+Results reported at Sun Oct  4 19:10:59 2026
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#BSUB -J hyb_400x600_p2_t8_places
+#BSUB -q short
+#BSUB -W 00:10
+#BSUB -n 2
+#BSUB -R "affinity[core(8)] span[hosts=1]"
+#BSUB -o results/polus/s4/hyb_400x600_p2_t8_places.%J.out
+#BSUB -e results/polus/s4/hyb_400x600_p2_t8_places.%J.err
+#BSUB -m "polus-c3-ib polus-c4-ib"
+#BSUB -x
+source /polusfs/setenv/setup.SMPI
+echo "job $LSB_JOBID (hyb_400x600_p2_t8_places) hosts: $LSB_HOSTS"
+echo "bind cpu list: ${LSB_BIND_CPU_LIST:-none}"
+date
+export OMP_NUM_THREADS=8 OMP_PLACES=cores OMP_PROC_BIND=close
+mpiexec -x OMP_NUM_THREADS -x OMP_PLACES -x OMP_PROC_BIND ./poisson_hyb 400 600 --binding
+date
+
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   431.89 sec.
+    Max Memory :                                 140 MB
+    Average Memory :                             128.42 MB
+    Total Requested Memory :                     -
+    Delta Memory :                               -
+    Max Swap :                                   -
+    Max Processes :                              6
+    Max Threads :                                29
+    Run time :                                   71 sec.
+    Turnaround time :                            66 sec.
+
+The output (if any) follows:
+
+job 1595120 (hyb_400x600_p2_t8_places) hosts: polus-c3-ib.bmc.hpc.cs.msu.ru polus-c3-ib.bmc.hpc.cs.msu.ru
+bind cpu list: 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143
+Sun Oct  4 19:09:55 MSK 2026
+poisson_mpi: M=400 N=600 h1=0.0055 h2=0.0055 eps=3.025e-05 delta=1e-06 procs=2 threads=8 (MPI thread level 1)
+decomposition 1 x 2, blocks 399..399 x 299..300 nodes, worst nx/ny ratio 1.334
+iters=599 restarts=0 last_step=9.615e-07 resid=1.475e-02 J=-8.010171939414e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8478477067  max_D|w|=0.9999995894  nodes_in_D=110847
+time: setup=0.0397 cg=63.8440 total=63.8837 s; inside cg: halo=20.9431 allreduce=35.8305 s
+RESULT prog=hyb M=400 N=600 procs=2 threads=8 iters=599 time=63.883677 cg_time=63.844004 intw=1.847847706716e+00 maxw=9.999995893658e-01 resid=1.475e-02 restarts=0 decomp=1x2 halo=20.943072 allreduce=35.830457
+binding rank 0 polus-c3-ib: 0/0 8/1 16/2 24/3 32/4 40/5 48/6 56/7  [8 cores for 8 threads]
+binding rank 1 polus-c3-ib: 0/0 8/1 16/2 24/3 32/4 40/5 48/6 56/7  [8 cores for 8 threads]
+Sun Oct  4 19:10:59 MSK 2026
+
+
+PS:
+
+Read file <results/polus/s4/hyb_400x600_p2_t8_places.1595120.err> for stderr output of this job.
+
