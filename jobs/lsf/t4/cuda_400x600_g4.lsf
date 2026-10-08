@@ -1,0 +1,16 @@
+#BSUB -J cuda_400x600_g4
+#BSUB -q short
+#BSUB -W 00:10
+#BSUB -n 4
+#BSUB -R "affinity[core(1)] span[ptile=2]"
+#BSUB -o results/polus/c1/cuda_400x600_g4.%J.out
+#BSUB -e results/polus/c1/cuda_400x600_g4.%J.err
+#BSUB -gpu "num=2:mode=exclusive_process"
+#BSUB -m "polus-c3-ib polus-c4-ib"
+#BSUB -x
+source /polusfs/setenv/setup.SMPI
+echo "job $LSB_JOBID (cuda_400x600_g4) hosts: $LSB_HOSTS"
+echo "bind cpu list: ${LSB_BIND_CPU_LIST:-none}"
+date
+mpiexec -gpu ./poisson_cuda 400 600
+date

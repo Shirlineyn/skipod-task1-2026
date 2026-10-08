@@ -1,8 +1,11 @@
-// MPI-версия и гибридная MPI+OpenMP-версия.
+// MPI-версия, гибридная MPI+OpenMP-версия и MPI+CUDA-версия.
 //
-// Один исходный файл, две программы: без OpenMP-флага — чистый MPI
+// Один исходный файл, три программы: без OpenMP-флага — чистый MPI
 // (poisson_mpi), с флагом — гибрид (poisson_hyb), где каждый процесс
-// дополнительно распараллеливает циклы по своему блоку нитями OpenMP.
+// дополнительно распараллеливает циклы по своему блоку нитями OpenMP;
+// с -DUSE_CUDA — poisson_cuda, где каждый процесс считает свой блок на
+// своей видеокарте (src/cg_cuda.cu). Декомпозиция, обмены и печать
+// результатов у всех трёх общие.
 //
 // Декомпозиция. Внутренние узлы сетки, (M-1) x (N-1), делятся на Px x Py
 // прямоугольных блоков, Px*Py = P. По каждой оси узлы раздаются поровну,
@@ -17,6 +20,7 @@
 //   MPI_Allreduce для скалярных произведений (2 раза по 2 числа).
 //
 // Запуск: mpiexec -n P ./poisson_mpi M N [--delta 1e-6] [--out sol.bin]
+//         mpiexec -gpu -n P ./poisson_cuda M N   (без -gpu Spectrum MPI виснет на выходе)
 
 #include <mpi.h>
 #include <cmath>
@@ -25,6 +29,9 @@
 #include "common.h"
 #include "problem.h"
 #include "solver.h"
+#ifdef USE_CUDA
+#include "cg_cuda.h"
+#endif
 
 struct Decomp {
     int Px, Py;
@@ -67,7 +74,13 @@ static Decomp choose_decomp(int P, int nxg, int nyg)
 }
 
 // Обмены для блока внутри декартовой решётки процессов.
-struct MpiComm : Comm {
+// Для CPU-решателя — halo() над вектором в памяти процесса; для GPU —
+// edges() над краями блока, которые решатель сам скопировал с карты.
+struct MpiComm : Comm
+#ifdef USE_CUDA
+    , EdgeComm
+#endif
+{
     MPI_Comm cart;
     const problem::Block* bl;
     int left, right, down, up;  // соседи по x (i-1, i+1) и по y (j-1, j+1)
@@ -111,6 +124,35 @@ struct MpiComm : Comm {
             for (int li = 1; li <= nx; ++li) v[bl->idx(li, 0)] = rbuf_d[li - 1];
         if (up != MPI_PROC_NULL)
             for (int li = 1; li <= nx; ++li) v[bl->idx(li, ny + 1)] = rbuf_u[li - 1];
+        t_halo += MPI_Wtime() - t;
+    }
+
+    bool has_neighbors()
+    {
+        return left != MPI_PROC_NULL || right != MPI_PROC_NULL || down != MPI_PROC_NULL ||
+               up != MPI_PROC_NULL;
+    }
+
+    // Обмен краями блока, раскладка буферов — см. EdgeComm в cg_cuda.h:
+    // send = [строка 1 | строка nx | столбец 1 | столбец ny],
+    // recv = [строка 0 | строка nx+1 | столбец 0 | столбец ny+1].
+    // Пары соседей и теги — те же, что в halo().
+    void edges(const double* send, double* recv)
+    {
+        const double t = MPI_Wtime();
+        const int nx = bl->nx, ny = bl->ny;
+        double* sb = const_cast<double*>(send);  // MPI-2 в Isend хочет void*
+        MPI_Request rq[8];
+        int n = 0;
+        MPI_Irecv(recv, ny, MPI_DOUBLE, left, 0, cart, &rq[n++]);
+        MPI_Irecv(recv + ny, ny, MPI_DOUBLE, right, 1, cart, &rq[n++]);
+        MPI_Isend(sb, ny, MPI_DOUBLE, left, 1, cart, &rq[n++]);
+        MPI_Isend(sb + ny, ny, MPI_DOUBLE, right, 0, cart, &rq[n++]);
+        MPI_Irecv(recv + 2 * ny, nx, MPI_DOUBLE, down, 2, cart, &rq[n++]);
+        MPI_Irecv(recv + 2 * ny + nx, nx, MPI_DOUBLE, up, 3, cart, &rq[n++]);
+        MPI_Isend(sb + 2 * ny, nx, MPI_DOUBLE, down, 3, cart, &rq[n++]);
+        MPI_Isend(sb + 2 * ny + nx, nx, MPI_DOUBLE, up, 2, cart, &rq[n++]);
+        MPI_Waitall(n, rq, MPI_STATUSES_IGNORE);
         t_halo += MPI_Wtime() - t;
     }
 
@@ -167,6 +209,19 @@ int main(int argc, char** argv)
     if (rank == 0 && thr_min != thr_max)
         std::printf("WARNING: OpenMP threads differ across ranks: %d..%d\n", thr_min, thr_max);
 
+#ifdef USE_CUDA
+    // Видеокарта процесса — по его номеру среди процессов того же узла.
+    char gpu[256];
+    {
+        MPI_Comm node;
+        int local;
+        MPI_Comm_split_type(cart, MPI_COMM_TYPE_SHARED, rank, MPI_INFO_NULL, &node);
+        MPI_Comm_rank(node, &local);
+        MPI_Comm_free(&node);
+        gpu_select(local, gpu, sizeof gpu);
+    }
+#endif
+
     if (rank == 0) {
         std::printf("poisson_mpi: M=%d N=%d h1=%.6g h2=%.6g eps=%.6g delta=%g procs=%d threads=%d "
                     "(MPI thread level %d)\n",
@@ -177,24 +232,37 @@ int main(int argc, char** argv)
                     dc.ok ? "" : "  WARNING: outside [1/2, 2]");
     }
 
-    MPI_Barrier(cart);
-    const double t0 = MPI_Wtime();
-    problem::Coeffs c;
-    problem::build_coeffs(gr, bl, c);
-    std::vector<double> d(bl.size(), 0.0);
-    const double t1 = MPI_Wtime();
-
     MpiComm comm(cart, &bl);
     CGParams prm;
     prm.delta = opt.delta;
     prm.maxit = opt.maxit;
     prm.verbose = opt.verbose;
     prm.rank = rank;
+    problem::Coeffs c;
+    std::vector<double> d(bl.size(), 0.0);
+
+    MPI_Barrier(cart);
+    const double t0 = MPI_Wtime();
+#ifdef USE_CUDA
+    // Коэффициенты и CG — на GPU; на хост — только итог для проверок.
+    GpuCG gcg(gr, bl);
+    const double t1 = MPI_Wtime();
+    CGResult res = gcg.solve(comm, prm);
+    const double t2 = MPI_Wtime();
+    c.Q.assign(bl.size(), 0.0);
+    gcg.download(&d[0], &c.Q[0]);
+    // Обмен краями целиком (с копированием GPU <-> хост) и ожидание
+    // скалярных произведений (с досчётом ядер) — время GPU-решателя.
+    double tl[4] = {t1 - t0, t2 - t1, gcg.t_halo, gcg.t_reduce}, tm[4];
+#else
+    problem::build_coeffs(gr, bl, c);
+    const double t1 = MPI_Wtime();
     CGResult res = cg_solve(gr, bl, c, d, comm, prm);
     const double t2 = MPI_Wtime();
+    double tl[4] = {t1 - t0, t2 - t1, comm.t_halo, comm.t_reduce}, tm[4];
+#endif
 
     // Время — по самому медленному процессу.
-    double tl[4] = {t1 - t0, t2 - t1, comm.t_halo, comm.t_reduce}, tm[4];
     MPI_Reduce(tl, tm, 4, MPI_DOUBLE, MPI_MAX, 0, cart);
 
     double area_l = 0.0;
@@ -215,12 +283,38 @@ int main(int argc, char** argv)
                     area, problem::area_D(), st[0], st[1], st[2]);
         std::printf("time: setup=%.4f cg=%.4f total=%.4f s; inside cg: halo=%.4f allreduce=%.4f s\n",
                     tm[0], tm[1], tm[0] + tm[1], tm[2], tm[3]);
+#ifdef USE_CUDA
+        std::printf("  (cuda: halo includes pack/copy GPU<->host, allreduce includes waiting "
+                    "for kernels; MPI part: halo=%.4f allreduce=%.4f s on rank 0)\n",
+                    comm.t_halo, comm.t_reduce);
+#endif
         std::printf("RESULT prog=%s M=%d N=%d procs=%d threads=%d iters=%ld time=%.6f cg_time=%.6f "
                     "intw=%.12e maxw=%.12e resid=%.3e restarts=%d decomp=%dx%d halo=%.6f allreduce=%.6f\n",
-                    omp_threads() ? "hyb" : "mpi", gr.M, gr.N, size, omp_threads(), res.iters,
+#ifdef USE_CUDA
+                    "cuda",
+#else
+                    omp_threads() ? "hyb" : "mpi",
+#endif
+                    gr.M, gr.N, size, omp_threads(), res.iters,
                     tm[0] + tm[1], tm[1], st[0], st[1], res.resid, res.restarts, dc.Px, dc.Py,
                     tm[2], tm[3]);
     }
+
+#ifdef USE_CUDA
+    {
+        // Какая карта у какого процесса: две карты узла не должны совпасть.
+        const int L = 256;
+        char host[MPI_MAX_PROCESSOR_NAME] = {0};
+        int hl;
+        MPI_Get_processor_name(host, &hl);
+        std::vector<char> buf(L, 0), all(rank == 0 ? (size_t)L * size : 0);
+        std::string tagged = std::string(host).substr(0, std::string(host).find('.')) + ": " + gpu;
+        std::strncpy(&buf[0], tagged.c_str(), L - 1);
+        MPI_Gather(&buf[0], L, MPI_CHAR, rank == 0 ? &all[0] : 0, L, MPI_CHAR, 0, cart);
+        if (rank == 0)
+            for (int r = 0; r < size; ++r) std::printf("gpu rank %d %s\n", r, &all[(size_t)r * L]);
+    }
+#endif
 
     if (opt.binding) {
         // Строки всех процессов собираются на процессе 0, чтобы не перемешались.

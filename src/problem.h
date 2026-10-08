@@ -33,24 +33,37 @@
 #include <vector>
 #include <algorithm>
 
+// Функции с пометкой HD вызываются и на CPU, и на GPU: CUDA-версия считает
+// коэффициенты схемы прямо на видеокарте теми же формулами. Для обычных
+// компиляторов HD пуст. Поэтому здесь нет std::sort и std::min — в коде
+// для GPU их нет; математика — глобальные ::sqrt, ::sin (те же функции, что
+// std::sqrt, std::sin для double).
+#ifdef __CUDACC__
+#define HD __host__ __device__
+#define PCONST constexpr  // константу double код для GPU видит только как constexpr
+#else
+#define HD
+#define PCONST const      // XL на Polus собирает без C++11
+#endif
+
 namespace problem {
 
-const double A1 = 0.91, B1 = 3.11;     // Pi по x
-const double A2 = -1.65, B2 = 1.65;  // Pi по y
-const double X_RIGHT = 3.0;          // правая сторона D
+PCONST double A1 = 0.91, B1 = 3.11;     // Pi по x
+PCONST double A2 = -1.65, B2 = 1.65;  // Pi по y
+PCONST double X_RIGHT = 3.0;          // правая сторона D
 
-inline double f(double /*x*/, double /*y*/) { return 1.0; }
-inline double phi(double x, double y) { return std::sin(x + y); }
+HD inline double f(double /*x*/, double /*y*/) { return 1.0; }
+HD inline double phi(double x, double y) { return ::sin(x + y); }
 // Продолжение phi с границы gamma в фиктивную область: та же формула.
-inline double v0(double x, double y) { return phi(x, y); }
+HD inline double v0(double x, double y) { return phi(x, y); }
 
 // Левая граница D: x = g(y).
-inline double g(double y) { return std::sqrt(1.0 + 4.0 * y * y); }
+HD inline double g(double y) { return ::sqrt(1.0 + 4.0 * y * y); }
 // Первообразная g: G'(y) = g(y).
-inline double G(double y) { return 0.5 * y * g(y) + 0.25 * ::asinh(2.0 * y); }
+HD inline double G(double y) { return 0.5 * y * g(y) + 0.25 * ::asinh(2.0 * y); }
 
 // Принадлежность точки области D (для подсчёта норм только по D).
-inline bool in_D(double x, double y) { return x > g(y) && x < X_RIGHT; }
+HD inline bool in_D(double x, double y) { return x > g(y) && x < X_RIGHT; }
 
 // Точная площадь пересечения прямоугольника [xa,xb] x [ya,yb] с D.
 //
@@ -62,9 +75,9 @@ inline bool in_D(double x, double y) { return x > g(y) && x < X_RIGHT; }
 // середине участка, а интеграл от g берётся через первообразную G.
 // Задание разрешает заменять дугу хордой; здесь дуга учитывается точно,
 // так что S не зависит от того, как кривая пересекает ячейку.
-inline double cell_area(double xa, double xb, double ya, double yb)
+HD inline double cell_area(double xa, double xb, double ya, double yb)
 {
-    const double xr = std::min(xb, X_RIGHT);
+    const double xr = xb < X_RIGHT ? xb : X_RIGHT;
     if (xr <= xa || yb <= ya) return 0.0;
 
     double pts[8];
@@ -74,13 +87,19 @@ inline double cell_area(double xa, double xb, double ya, double yb)
     const double cs[2] = {xa, xr};
     for (int k = 0; k < 2; ++k) {
         if (cs[k] > 1.0) {
-            const double yc = 0.5 * std::sqrt(cs[k] * cs[k] - 1.0);
+            const double yc = 0.5 * ::sqrt(cs[k] * cs[k] - 1.0);
             if (yc > ya && yc < yb) pts[n++] = yc;
             if (-yc > ya && -yc < yb) pts[n++] = -yc;
         }
     }
     if (0.0 > ya && 0.0 < yb) pts[n++] = 0.0;
-    std::sort(pts, pts + n);
+    // Сортировка вставками: точек не больше семи.
+    for (int a = 1; a < n; ++a) {
+        const double t = pts[a];
+        int b = a - 1;
+        for (; b >= 0 && pts[b] > t; --b) pts[b + 1] = pts[b];
+        pts[b + 1] = t;
+    }
 
     double s = 0.0;
     for (int k = 0; k + 1 < n; ++k) {
@@ -95,7 +114,7 @@ inline double cell_area(double xa, double xb, double ya, double yb)
 }
 
 // Точная площадь D: 3*sqrt(2) - asinh(2*sqrt(2))/2. Для самопроверки.
-inline double area_D() { return 3.0 * std::sqrt(2.0) - 0.5 * ::asinh(2.0 * std::sqrt(2.0)); }
+inline double area_D() { return 3.0 * ::sqrt(2.0) - 0.5 * ::asinh(2.0 * ::sqrt(2.0)); }
 
 struct Grid {
     int M, N;          // число отрезков разбиения по x и по y
@@ -108,8 +127,8 @@ struct Grid {
         const double h = std::max(h1, h2);
         eps = h * h;
     }
-    double x(int i) const { return A1 + i * h1; }
-    double y(int j) const { return A2 + j * h2; }
+    HD double x(int i) const { return A1 + i * h1; }
+    HD double y(int j) const { return A2 + j * h2; }
 };
 
 // Прямоугольный блок внутренних узлов сетки с одним слоем теневых узлов.
@@ -146,35 +165,38 @@ struct Coeffs {
     std::vector<double> B;     // правая часть для поправки d
 };
 
+// Коэффициенты в одном внутреннем узле (i, j) глобальной сетки. Общая
+// функция для CPU (build_coeffs) и GPU (ядро в cg_cuda.cu).
+HD inline void node_coeffs(const Grid& gr, int i, int j, double& Qij, double& Dij, double& Bij)
+{
+    const double h1 = gr.h1, h2 = gr.h2, cell = h1 * h2;
+    const double inv_eps2 = 1.0 / (gr.eps * gr.eps);
+    const double ih1 = 1.0 / (h1 * h1), ih2 = 1.0 / (h2 * h2);
+    const double x = gr.x(i), y = gr.y(j);
+    const double S = cell_area(x - 0.5 * h1, x + 0.5 * h1, y - 0.5 * h2, y + 0.5 * h2);
+    const double frac = S / cell;           // доля ячейки внутри D
+    Qij = (1.0 - frac) * inv_eps2;
+    // F_ij = S_ij f(x*, y*) / (h1 h2); f = 1, точка (x*, y*) ни на что не влияет.
+    const double Fij = frac * f(x, y);
+    const double lap_v0 =
+        (v0(x + h1, y) - 2.0 * v0(x, y) + v0(x - h1, y)) * ih1 +
+        (v0(x, y + h2) - 2.0 * v0(x, y) + v0(x, y - h2)) * ih2;
+    Dij = 1.0 / (2.0 * ih1 + 2.0 * ih2 + Qij);
+    Bij = Fij + lap_v0;
+}
+
 inline void build_coeffs(const Grid& gr, const Block& bl, Coeffs& c)
 {
     const int sz = bl.size();
     c.Q.assign(sz, 0.0);
     c.Dinv.assign(sz, 0.0);
     c.B.assign(sz, 0.0);
-    const double h1 = gr.h1, h2 = gr.h2, cell = h1 * h2;
-    const double inv_eps2 = 1.0 / (gr.eps * gr.eps);
-    const double ih1 = 1.0 / (h1 * h1), ih2 = 1.0 / (h2 * h2);
 
 #pragma omp parallel for schedule(static)
     for (int li = 1; li <= bl.nx; ++li) {
-        const int i = bl.i0 + li;
-        const double x = gr.x(i);
         for (int lj = 1; lj <= bl.ny; ++lj) {
-            const int j = bl.j0 + lj;
-            const double y = gr.y(j);
-            const double S = cell_area(x - 0.5 * h1, x + 0.5 * h1, y - 0.5 * h2, y + 0.5 * h2);
-            const double frac = S / cell;           // доля ячейки внутри D
-            const double Qij = (1.0 - frac) * inv_eps2;
-            // F_ij = S_ij f(x*, y*) / (h1 h2); f = 1, точка (x*, y*) ни на что не влияет.
-            const double Fij = frac * f(x, y);
-            const double lap_v0 =
-                (v0(x + h1, y) - 2.0 * v0(x, y) + v0(x - h1, y)) * ih1 +
-                (v0(x, y + h2) - 2.0 * v0(x, y) + v0(x, y - h2)) * ih2;
             const int k = bl.idx(li, lj);
-            c.Q[k] = Qij;
-            c.Dinv[k] = 1.0 / (2.0 * ih1 + 2.0 * ih2 + Qij);
-            c.B[k] = Fij + lap_v0;
+            node_coeffs(gr, bl.i0 + li, bl.j0 + lj, c.Q[k], c.Dinv[k], c.B[k]);
         }
     }
 }

@@ -1,0 +1,73 @@
+Sender: LSF System <lsfadmin@polus-c3-ib.bmc.hpc.cs.msu.ru>
+Subject: Job 1595323: <cuda_800x1200_g4> in cluster <MSUCluster> Done
+
+Job <cuda_800x1200_g4> was submitted from host <polus-ib.bmc.hpc.cs.msu.ru> by user <edu-cmc-skmodel26-609-02> in cluster <MSUCluster> at Thu Oct  8 13:37:25 2026
+Job was executed on host(s) <2*polus-c3-ib.bmc.hpc.cs.msu.ru>, in queue <short>, as user <edu-cmc-skmodel26-609-02> in cluster <MSUCluster> at Thu Oct  8 13:37:26 2026
+                            <2*polus-c4-ib.bmc.hpc.cs.msu.ru>
+</home_edu/edu-cmc-skmodel26-609/edu-cmc-skmodel26-609-02> was used as the home directory.
+</polusfs/home_edu/edu-cmc-skmodel26-609/edu-cmc-skmodel26-609-02/task1-cuda> was used as the working directory.
+Started at Thu Oct  8 13:37:26 2026
+Terminated at Thu Oct  8 13:37:29 2026
+Results reported at Thu Oct  8 13:37:29 2026
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#BSUB -J cuda_800x1200_g4
+#BSUB -q short
+#BSUB -W 00:10
+#BSUB -n 4
+#BSUB -R "affinity[core(1)] span[ptile=2]"
+#BSUB -o results/polus/c1/cuda_800x1200_g4.%J.out
+#BSUB -e results/polus/c1/cuda_800x1200_g4.%J.err
+#BSUB -gpu "num=2:mode=exclusive_process"
+#BSUB -m "polus-c3-ib polus-c4-ib"
+#BSUB -x
+source /polusfs/setenv/setup.SMPI
+echo "job $LSB_JOBID (cuda_800x1200_g4) hosts: $LSB_HOSTS"
+echo "bind cpu list: ${LSB_BIND_CPU_LIST:-none}"
+date
+mpiexec -gpu ./poisson_cuda 800 1200
+date
+
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   1.54 sec.
+    Max Memory :                                 4 MB
+    Average Memory :                             4.00 MB
+    Total Requested Memory :                     -
+    Delta Memory :                               -
+    Max Swap :                                   -
+    Max Processes :                              2
+    Max Threads :                                2
+    Run time :                                   3 sec.
+    Turnaround time :                            4 sec.
+
+The output (if any) follows:
+
+job 1595323 (cuda_800x1200_g4) hosts: polus-c3-ib.bmc.hpc.cs.msu.ru polus-c3-ib.bmc.hpc.cs.msu.ru polus-c4-ib.bmc.hpc.cs.msu.ru polus-c4-ib.bmc.hpc.cs.msu.ru
+bind cpu list: 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+Thu Oct  8 13:37:27 MSK 2026
+poisson_mpi: M=800 N=1200 h1=0.00275 h2=0.00275 eps=7.5625e-06 delta=1e-06 procs=4 threads=0 (MPI thread level 1)
+decomposition 2 x 2, blocks 399..400 x 599..600 nodes, worst nx/ny ratio 1.504
+iters=1018 restarts=0 last_step=9.989e-07 resid=6.360e-02 J=-8.036941092711e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8480576942  max_D|w|=0.9999996749  nodes_in_D=443943
+time: setup=0.0019 cg=0.1581 total=0.1600 s; inside cg: halo=0.0488 allreduce=0.0968 s
+  (cuda: halo includes pack/copy GPU<->host, allreduce includes waiting for kernels; MPI part: halo=0.0085 allreduce=0.0109 s on rank 0)
+RESULT prog=cuda M=800 N=1200 procs=4 threads=0 iters=1018 time=0.159959 cg_time=0.158062 intw=1.848057694198e+00 maxw=9.999996749223e-01 resid=6.360e-02 restarts=0 decomp=2x2 halo=0.048843 allreduce=0.096806
+gpu rank 0 polus-c3-ib: device 0 of 2: Tesla P100-SXM2-16GB, sm_60, 56 SMs, bus 0002:01:00.0
+gpu rank 1 polus-c3-ib: device 1 of 2: Tesla P100-SXM2-16GB, sm_60, 56 SMs, bus 0006:01:00.0
+gpu rank 2 polus-c4-ib: device 0 of 2: Tesla P100-SXM2-16GB, sm_60, 56 SMs, bus 0002:01:00.0
+gpu rank 3 polus-c4-ib: device 1 of 2: Tesla P100-SXM2-16GB, sm_60, 56 SMs, bus 0006:01:00.0
+Thu Oct  8 13:37:28 MSK 2026
+
+
+PS:
+
+Read file <results/polus/c1/cuda_800x1200_g4.1595323.err> for stderr output of this job.
+

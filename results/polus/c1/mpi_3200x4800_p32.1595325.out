@@ -1,0 +1,67 @@
+Sender: LSF System <lsfadmin@polus-c3-ib.bmc.hpc.cs.msu.ru>
+Subject: Job 1595325: <mpi_3200x4800_p32> in cluster <MSUCluster> Done
+
+Job <mpi_3200x4800_p32> was submitted from host <polus-ib.bmc.hpc.cs.msu.ru> by user <edu-cmc-skmodel26-609-02> in cluster <MSUCluster> at Thu Oct  8 13:37:29 2026
+Job was executed on host(s) <16*polus-c3-ib.bmc.hpc.cs.msu.ru>, in queue <short>, as user <edu-cmc-skmodel26-609-02> in cluster <MSUCluster> at Thu Oct  8 13:37:32 2026
+                            <16*polus-c4-ib.bmc.hpc.cs.msu.ru>
+</home_edu/edu-cmc-skmodel26-609/edu-cmc-skmodel26-609-02> was used as the home directory.
+</polusfs/home_edu/edu-cmc-skmodel26-609/edu-cmc-skmodel26-609-02/task1-cuda> was used as the working directory.
+Started at Thu Oct  8 13:37:32 2026
+Terminated at Thu Oct  8 13:37:55 2026
+Results reported at Thu Oct  8 13:37:55 2026
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#BSUB -J mpi_3200x4800_p32
+#BSUB -q short
+#BSUB -W 00:10
+#BSUB -n 32
+#BSUB -R "affinity[core(1)] span[ptile=16]"
+#BSUB -o results/polus/c1/mpi_3200x4800_p32.%J.out
+#BSUB -e results/polus/c1/mpi_3200x4800_p32.%J.err
+#BSUB -m "polus-c3-ib polus-c4-ib"
+#BSUB -x
+source /polusfs/setenv/setup.SMPI
+echo "job $LSB_JOBID (mpi_3200x4800_p32) hosts: $LSB_HOSTS"
+echo "bind cpu list: ${LSB_BIND_CPU_LIST:-none}"
+date
+mpiexec ./poisson_mpi 3200 4800
+date
+
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   670.90 sec.
+    Max Memory :                                 1343 MB
+    Average Memory :                             1074.60 MB
+    Total Requested Memory :                     -
+    Delta Memory :                               -
+    Max Swap :                                   -
+    Max Processes :                              20
+    Max Threads :                                57
+    Run time :                                   22 sec.
+    Turnaround time :                            26 sec.
+
+The output (if any) follows:
+
+job 1595325 (mpi_3200x4800_p32) hosts: polus-c3-ib.bmc.hpc.cs.msu.ru polus-c3-ib.bmc.hpc.cs.msu.ru polus-c3-ib.bmc.hpc.cs.msu.ru polus-c3-ib.bmc.hpc.cs.msu.ru polus-c3-ib.bmc.hpc.cs.msu.ru polus-c3-ib.bmc.hpc.cs.msu.ru polus-c3-ib.bmc.hpc.cs.msu.ru polus-c3-ib.bmc.hpc.cs.msu.ru polus-c3-ib.bmc.hpc.cs.msu.ru polus-c3-ib.bmc.hpc.cs.msu.ru polus-c3-ib.bmc.hpc.cs.msu.ru polus-c3-ib.bmc.hpc.cs.msu.ru polus-c3-ib.bmc.hpc.cs.msu.ru polus-c3-ib.bmc.hpc.cs.msu.ru polus-c3-ib.bmc.hpc.cs.msu.ru polus-c3-ib.bmc.hpc.cs.msu.ru polus-c4-ib.bmc.hpc.cs.msu.ru polus-c4-ib.bmc.hpc.cs.msu.ru polus-c4-ib.bmc.hpc.cs.msu.ru polus-c4-ib.bmc.hpc.cs.msu.ru polus-c4-ib.bmc.hpc.cs.msu.ru polus-c4-ib.bmc.hpc.cs.msu.ru polus-c4-ib.bmc.hpc.cs.msu.ru polus-c4-ib.bmc.hpc.cs.msu.ru polus-c4-ib.bmc.hpc.cs.msu.ru polus-c4-ib.bmc.hpc.cs.msu.ru polus-c4-ib.bmc.hpc.cs.msu.ru polus-c4-ib.bmc.hpc.cs.msu.ru polus-c4-ib.bmc.hpc.cs.msu.ru polus-c4-ib.bmc.hpc.cs.msu.ru polus-c4-ib.bmc.hpc.cs.msu.ru polus-c4-ib.bmc.hpc.cs.msu.ru
+bind cpu list: 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127
+Thu Oct  8 13:37:33 MSK 2026
+poisson_mpi: M=3200 N=4800 h1=0.0006875 h2=0.0006875 eps=4.72656e-07 delta=1e-06 procs=32 threads=0 (MPI thread level 1)
+decomposition 4 x 8, blocks 799..800 x 599..600 nodes, worst nx/ny ratio 1.336
+iters=3378 restarts=0 last_step=9.978e-07 resid=9.362e-01 J=-7.669631035408e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8555101648  max_D|w|=0.9999999941  nodes_in_D=7109355
+time: setup=0.1252 cg=20.7845 total=20.9097 s; inside cg: halo=1.7230 allreduce=10.0205 s
+RESULT prog=mpi M=3200 N=4800 procs=32 threads=0 iters=3378 time=20.909658 cg_time=20.784501 intw=1.855510164824e+00 maxw=9.999999940601e-01 resid=9.362e-01 restarts=0 decomp=4x8 halo=1.722984 allreduce=10.020521
+Thu Oct  8 13:37:54 MSK 2026
+
+
+PS:
+
+Read file <results/polus/c1/mpi_3200x4800_p32.1595325.err> for stderr output of this job.
+

@@ -1,7 +1,7 @@
 # /// script
 # dependencies = ["matplotlib"]
 # ///
-"""Сбор таблиц 1-3 задания из логов прогонов.
+"""Сбор таблиц 1-3 задания (и своей таблицы 4, MPI+CUDA) из логов прогонов.
 
 Каждая программа печатает строку
   RESULT prog=omp M=400 N=600 procs=1 threads=4 iters=... time=... ...
@@ -24,6 +24,8 @@ from collections import defaultdict
 ROW_OMP = [(2, "400x600"), (4, "400x600"), (8, "400x600"), (16, "400x600"),
            (4, "800x1200"), (8, "800x1200"), (16, "800x1200"), (32, "800x1200")]
 ROW_MPI = ROW_OMP
+GRIDS_CUDA = ["400x600", "800x1200", "1600x2400", "3200x4800"]
+GPUS = [1, 2, 4]
 ROW_HYB = [(2, 1, "400x600"), (2, 2, "400x600"), (2, 4, "400x600"), (2, 8, "400x600"),
            (4, 1, "800x1200"), (4, 2, "800x1200"), (4, 4, "800x1200"), (4, 8, "800x1200")]
 
@@ -106,6 +108,30 @@ def main():
         r = best(runs, k)
         rows.append([str(p), str(t), g.replace("x", "×"), str(r[1]) if r else "—", fmt(r and r[0]), speed(g, r), spread(runs, k)])
     print(table("Таблица 3. MPI+OpenMP", ["Процессов", "Нитей", "Сетка", "Итераций", "Время, с", "Ускорение", "Повт."], rows))
+
+    # Таблица 4 — только если в логах есть прогоны poisson_cuda.
+    if any(k[0] == "cuda" for k in runs):
+        rows = []
+        for g in GRIDS_CUDA:
+            sq = best(runs, ("seq", g, 1, 0))
+            m32 = best(runs, ("mpi", g, 32, 0))
+            g1 = best(runs, ("cuda", g, 1, 0))
+            for n in GPUS:
+                k = ("cuda", g, n, 0)
+                r = best(runs, k)
+                if r is None:
+                    continue
+                rows.append([str(n), g.replace("x", "×"), str(r[1]), fmt(r[0]),
+                             f"{sq[0] / r[0]:.1f}" if sq else "—",
+                             f"{m32[0] / r[0]:.2f}" if m32 else "—",
+                             f"{g1[0] / r[0]:.2f}" if g1 else "—", spread(runs, k)])
+        print(table("Таблица 4. MPI+CUDA (Tesla P100, процесс на карту)",
+                    ["Карт", "Сетка", "Итераций", "Время, с", "К seq", "К MPI-32", "К 1 карте", "Повт."], rows))
+        print("Базы: " + "; ".join(
+            f"{g}: seq {fmt(best(runs, ('seq', g, 1, 0)) and best(runs, ('seq', g, 1, 0))[0])} с, "
+            f"MPI-32 {fmt(best(runs, ('mpi', g, 32, 0)) and best(runs, ('mpi', g, 32, 0))[0])} с"
+            for g in GRIDS_CUDA))
+        print()
 
     if a.plot:
         import matplotlib

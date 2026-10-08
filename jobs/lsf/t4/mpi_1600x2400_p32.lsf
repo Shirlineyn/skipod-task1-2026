@@ -1,0 +1,15 @@
+#BSUB -J mpi_1600x2400_p32
+#BSUB -q short
+#BSUB -W 00:10
+#BSUB -n 32
+#BSUB -R "affinity[core(1)] span[ptile=16]"
+#BSUB -o results/polus/c1/mpi_1600x2400_p32.%J.out
+#BSUB -e results/polus/c1/mpi_1600x2400_p32.%J.err
+#BSUB -m "polus-c3-ib polus-c4-ib"
+#BSUB -x
+source /polusfs/setenv/setup.SMPI
+echo "job $LSB_JOBID (mpi_1600x2400_p32) hosts: $LSB_HOSTS"
+echo "bind cpu list: ${LSB_BIND_CPU_LIST:-none}"
+date
+mpiexec ./poisson_mpi 1600 2400
+date

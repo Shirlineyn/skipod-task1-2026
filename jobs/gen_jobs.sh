@@ -29,7 +29,13 @@
 #           гипотезы серии 4: гибрид 4x2 теряет на ожидании в allreduce;
 #   nodes — одна и та же последовательная задача на каждом узле (-m), по
 #           два раза: в серии 1 все прогоны на polus-c2 были в ~1.6 раза
-#           медленнее, чем на c3 и c4.
+#           медленнее, чем на c3 и c4;
+#   cuda_check — MPI+CUDA-программа: 80x80 на 1, 2 и 4 картах (решение
+#           должно совпасть с CPU-версиями), сетки таблиц на одной карте;
+#   t4    — таблица 4 (своя, в задании её нет): MPI+CUDA на 1, 2 и 4 картах
+#           на сетках таблиц и на двух более крупных, 1600x2400 и 3200x4800,
+#           где карте есть чем загрузиться; для них же — последовательная
+#           программа и MPI на 32 процессах как база для сравнения.
 #
 # Как выбраны ресурсы (узел Polus: 20 ядер POWER8 по 8 аппаратных нитей,
 # слот LSF = ядро):
@@ -41,6 +47,14 @@
 #   MPI: один процесс на ядро; до 16 процессов — на одном узле, 32 —
 #     поровну на два узла по 16.
 #   MPI+OpenMP: на процесс T ядер; если P*T > 20, процессы поровну на два узла.
+#   MPI+CUDA: процесс на карту, у процесса одно ядро; на узле две карты
+#     P100, поэтому 1-2 карты — один узел, 4 — два узла по две.
+#     mode=exclusive_process: на карте только наш процесс, иначе её может
+#     делить чужая задача. mpiexec — обязательно с ключом -gpu: без него
+#     Spectrum MPI не завершается после выхода программы, работающей с CUDA
+#     (результат напечатан, а задача висит до лимита времени; проверено
+#     08.10.2026 на фронтенде: без -gpu снято по таймауту через 20 с,
+#     с -gpu — 0.3 с).
 #
 # Узлы. В серии 1 (04.10.2026) все прогоны, попавшие на polus-c2, шли в
 # ~1.65 раза медленнее (группа nodes: seq 800x1200 — 8.27 с на c2 против
@@ -122,6 +136,19 @@ hyb_job() {  # группа M N P T
 mpiexec -x OMP_NUM_THREADS ./poisson_hyb $M $N"
 }
 
+cuda_job() {  # группа M N G
+    local group=$1 M=$2 N=$3 G=$4 span="span[hosts=1]" per=$4
+    [ "$G" -gt 2 ] && { span="span[ptile=2]"; per=2; }
+    local excl=""
+    [ "$EXCLUSIVE" = 1 ] && excl="#BSUB -x
+"
+    emit "$group" "cuda_${M}x${N}_g${G}" "$G" "affinity[core(1)] $span" \
+        "mpiexec -gpu ./poisson_cuda $M $N" \
+        "#BSUB -gpu \"num=$per:mode=exclusive_process\"
+#BSUB -m \"$HOSTS\"
+$excl"
+}
+
 # check: пункты 1, 2, 5, 7
 for g in 20 40 80; do seq_job check $g $g --out $OUT/sol_${g}x${g}.bin; done
 for t in 1 4 16; do omp_job check 80 80 $t; done
@@ -186,6 +213,19 @@ for node in c2 c3 c4; do
 "
     done
 done
+
+# cuda_check: правильность MPI+CUDA
+for g in 1 2 4; do cuda_job cuda_check 80 80 $g; done
+cuda_job cuda_check 400 600 1
+cuda_job cuda_check 800 1200 1
+
+# t4: MPI+CUDA; WTIME у последовательной на 3200x4800 — с запасом
+for grid in "400 600" "800 1200" "1600 2400" "3200 4800"; do
+    for g in 1 2 4; do cuda_job t4 $grid $g; done
+done
+seq_job t4 1600 2400
+WTIME=00:25 seq_job t4 3200 4800
+for grid in "1600 2400" "3200 4800"; do mpi_job t4 $grid 32; done
 
 find lsf -name '*.lsf' | sort | sed 's/^/  /'
 echo "$(find lsf -name '*.lsf' | wc -l | tr -d ' ') files"

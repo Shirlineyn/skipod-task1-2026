@@ -1,8 +1,10 @@
-# Сборка четырёх программ из двух исходников:
-#   poisson_seq — последовательная (poisson_omp.cpp без OpenMP)
-#   poisson_omp — OpenMP
-#   poisson_mpi — MPI без OpenMP
-#   poisson_hyb — MPI + OpenMP
+# Сборка пяти программ из двух исходников:
+#   poisson_seq  — последовательная (poisson_omp.cpp без OpenMP)
+#   poisson_omp  — OpenMP
+#   poisson_mpi  — MPI без OpenMP
+#   poisson_hyb  — MPI + OpenMP
+#   poisson_cuda — MPI + CUDA (poisson_mpi.cpp с -DUSE_CUDA и src/cg_cuda.cu);
+#                  собирается, только если есть nvcc (на Polus есть, на Mac нет)
 #
 # Компилятор выбирается переменной COMPILER, по умолчанию — по машине:
 #   xl    — Polus (ppc64le): IBM XL, перед сборкой `module load SpectrumMPI`
@@ -53,7 +55,15 @@ endif
 
 HDR := src/problem.h src/solver.h src/common.h
 
-all: poisson_seq poisson_omp poisson_mpi poisson_hyb
+# CUDA. На Polus /usr/local/cuda -> cuda-10.2, карты Tesla P100 (sm_60).
+# Код для GPU собирает nvcc с хост-компилятором по умолчанию (GCC 4.8.5);
+# MPI-часть — тот же MPI-компилятор, что у poisson_mpi, линкуется с cudart.
+CUDA_HOME ?= /usr/local/cuda
+NVCC      := $(CUDA_HOME)/bin/nvcc
+NVFLAGS   := -O3 -std=c++11 -arch=sm_60 -Xcompiler -Wall,-Wno-unknown-pragmas
+HAVE_NVCC := $(wildcard $(NVCC))
+
+all: poisson_seq poisson_omp poisson_mpi poisson_hyb $(if $(HAVE_NVCC),poisson_cuda)
 
 poisson_seq: src/poisson_omp.cpp $(HDR)
 	$(CXX) $(CXXFLAGS) -o $@ $<
@@ -67,7 +77,14 @@ poisson_mpi: src/poisson_mpi.cpp $(HDR)
 poisson_hyb: src/poisson_mpi.cpp $(HDR)
 	$(MPIENV) $(MPICXX) $(CXXFLAGS) $(OMPFLAGS) -o $@ $<
 
+cg_cuda.o: src/cg_cuda.cu src/cg_cuda.h $(HDR)
+	$(NVCC) $(NVFLAGS) -c -o $@ $<
+
+poisson_cuda: src/poisson_mpi.cpp cg_cuda.o src/cg_cuda.h $(HDR)
+	$(MPIENV) $(MPICXX) $(CXXFLAGS) -DUSE_CUDA -o $@ $< cg_cuda.o \
+	    -L$(CUDA_HOME)/lib64 -lcudart -Wl,-rpath,$(CUDA_HOME)/lib64
+
 clean:
-	rm -f poisson_seq poisson_omp poisson_mpi poisson_hyb
+	rm -f poisson_seq poisson_omp poisson_mpi poisson_hyb poisson_cuda cg_cuda.o
 
 .PHONY: all clean

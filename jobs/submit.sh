@@ -26,7 +26,9 @@ mkdir -p results/polus
 groups=("$@")
 [ "${groups[0]}" = all ] && groups=(check base t1 t2 t3)
 
-for b in poisson_seq poisson_omp poisson_mpi poisson_hyb; do
+progs="poisson_seq poisson_omp poisson_mpi poisson_hyb"
+case " ${groups[*]} " in *" cuda_check "*|*" t4 "*) progs="$progs poisson_cuda" ;; esac
+for b in $progs; do
     [ -x "$b" ] || { echo "нет ./$b — сначала: module load SpectrumMPI && make"; exit 1; }
 done
 

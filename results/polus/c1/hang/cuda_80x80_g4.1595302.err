@@ -1,0 +1,30 @@
+[polus-c4-ib:156538] *** Process received signal ***
+[polus-c4-ib:156538] Signal: Segmentation fault (11)
+[polus-c4-ib:156538] Signal code: Address not mapped (1)
+[polus-c4-ib:156538] Failing at address: 0x98
+[polus-c4-ib:156538] [ 0] [0x100000050478]
+[polus-c4-ib:156538] [ 1] /opt/ibm/spectrum_mpi/lib/libpami_cudahook.so(_Z18host_free_callbackPv+0x234)[0x100000076dd4]
+[polus-c4-ib:156538] [ 2] /opt/ibm/spectrum_mpi/lib/libpami_cudahook.so(cuMemFreeHost+0x80)[0x100000072c20]
+[polus-c4-ib:156538] [ 3] /usr/local/cuda-10.2/lib64/libcudart.so.10.2(+0x44030)[0x1000000e4030]
+[polus-c4-ib:156538] [ 4] /usr/local/cuda-10.2/lib64/libcudart.so.10.2(+0x12478)[0x1000000b2478]
+[polus-c4-ib:156538] [ 5] /usr/local/cuda-10.2/lib64/libcudart.so.10.2(cudaFreeHost+0x74)[0x1000000f4214]
+[polus-c4-ib:156538] [ 6] ./poisson_cuda[0x100098cc]
+[polus-c4-ib:156538] [ 7] ./poisson_cuda[0x10003e40]
+[polus-c4-ib:156538] [ 8] /lib64/libc.so.6(+0x24980)[0x1000005d4980]
+[polus-c4-ib:156538] [ 9] /lib64/libc.so.6(__libc_start_main+0xc4)[0x1000005d4b74]
+[polus-c4-ib:156538] *** End of error message ***
+[polus-c4-ib:156537] *** Process received signal ***
+[polus-c4-ib:156537] Signal: Segmentation fault (11)
+[polus-c4-ib:156537] Signal code: Address not mapped (1)
+[polus-c4-ib:156537] Failing at address: 0x98
+[polus-c4-ib:156537] [ 0] [0x100000050478]
+[polus-c4-ib:156537] [ 1] /opt/ibm/spectrum_mpi/lib/libpami_cudahook.so(_Z18host_free_callbackPv+0x234)[0x100000076dd4]
+[polus-c4-ib:156537] [ 2] /opt/ibm/spectrum_mpi/lib/libpami_cudahook.so(cuMemFreeHost+0x80)[0x100000072c20]
+[polus-c4-ib:156537] [ 3] /usr/local/cuda-10.2/lib64/libcudart.so.10.2(+0x44030)[0x1000000e4030]
+[polus-c4-ib:156537] [ 4] /usr/local/cuda-10.2/lib64/libcudart.so.10.2(+0x12478)[0x1000000b2478]
+[polus-c4-ib:156537] [ 5] /usr/local/cuda-10.2/lib64/libcudart.so.10.2(cudaFreeHost+0x74)[0x1000000f4214]
+[polus-c4-ib:156537] [ 6] ./poisson_cuda[0x100098cc]
+[polus-c4-ib:156537] [ 7] ./poisson_cuda[0x10003e40]
+[polus-c4-ib:156537] [ 8] /lib64/libc.so.6(+0x24980)[0x1000005d4980]
+[polus-c4-ib:156537] [ 9] /lib64/libc.so.6(__libc_start_main+0xc4)[0x1000005d4b74]
+[polus-c4-ib:156537] *** End of error message ***

@@ -1,0 +1,65 @@
+Sender: LSF System <lsfadmin@polus-c3-ib.bmc.hpc.cs.msu.ru>
+Subject: Job 1595327: <seq_3200x4800> in cluster <MSUCluster> Done
+
+Job <seq_3200x4800> was submitted from host <polus-ib.bmc.hpc.cs.msu.ru> by user <edu-cmc-skmodel26-609-02> in cluster <MSUCluster> at Thu Oct  8 13:37:33 2026
+Job was executed on host(s) <polus-c3-ib.bmc.hpc.cs.msu.ru>, in queue <short>, as user <edu-cmc-skmodel26-609-02> in cluster <MSUCluster> at Thu Oct  8 13:37:55 2026
+</home_edu/edu-cmc-skmodel26-609/edu-cmc-skmodel26-609-02> was used as the home directory.
+</polusfs/home_edu/edu-cmc-skmodel26-609/edu-cmc-skmodel26-609-02/task1-cuda> was used as the working directory.
+Started at Thu Oct  8 13:37:55 2026
+Terminated at Thu Oct  8 13:42:03 2026
+Results reported at Thu Oct  8 13:42:03 2026
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#BSUB -J seq_3200x4800
+#BSUB -q short
+#BSUB -W 00:25
+#BSUB -n 1
+#BSUB -R "affinity[core(1)]"
+#BSUB -o results/polus/c1/seq_3200x4800.%J.out
+#BSUB -e results/polus/c1/seq_3200x4800.%J.err
+#BSUB -m "polus-c3-ib polus-c4-ib"
+#BSUB -x
+source /polusfs/setenv/setup.SMPI
+echo "job $LSB_JOBID (seq_3200x4800) hosts: $LSB_HOSTS"
+echo "bind cpu list: ${LSB_BIND_CPU_LIST:-none}"
+date
+./poisson_seq 3200 4800 
+date
+
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   247.41 sec.
+    Max Memory :                                 943 MB
+    Average Memory :                             918.21 MB
+    Total Requested Memory :                     -
+    Delta Memory :                               -
+    Max Swap :                                   -
+    Max Processes :                              4
+    Max Threads :                                5
+    Run time :                                   248 sec.
+    Turnaround time :                            270 sec.
+
+The output (if any) follows:
+
+job 1595327 (seq_3200x4800) hosts: polus-c3-ib.bmc.hpc.cs.msu.ru
+bind cpu list: 0,1,2,3,4,5,6,7
+Thu Oct  8 13:37:55 MSK 2026
+poisson_omp: M=3200 N=4800 h1=0.0006875 h2=0.0006875 eps=4.72656e-07 delta=1e-06 threads=0
+iters=3378 restarts=0 last_step=9.978e-07 resid=9.362e-01 J=-7.669631035408e-02
+area_cells=3.3612671003 area_D=3.3612671001  int_D(w)=1.8555101648  max_D|w|=0.9999999941  nodes_in_D=7109355
+time: setup=2.8518 cg=243.9230 total=246.7748 s
+RESULT prog=seq M=3200 N=4800 procs=1 threads=0 iters=3378 time=246.774807 cg_time=243.922992 intw=1.855510164824e+00 maxw=9.999999940601e-01 resid=9.362e-01 restarts=0
+Thu Oct  8 13:42:02 MSK 2026
+
+
+PS:
+
+Read file <results/polus/c1/seq_3200x4800.1595327.err> for stderr output of this job.
+
