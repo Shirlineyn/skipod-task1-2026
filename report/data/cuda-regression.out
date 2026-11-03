@@ -1,0 +1,50 @@
+test_bad_arguments (__main__.Regression.test_bad_arguments) ... ok
+test_buffered_write_failure (__main__.Regression.test_buffered_write_failure) ... ok
+test_collect_rejects_failed_status (__main__.Regression.test_collect_rejects_failed_status) ... пропущен неуспешный RESULT (max_iterations): /Users/adoronin001/Shirlineyn_Folder/tmp/skipod-report-20261103/cuda-regression/status.out
+пропущен неуспешный RESULT (breakdown): /Users/adoronin001/Shirlineyn_Folder/tmp/skipod-report-20261103/cuda-regression/status.out
+Внимание: старые RESULT без status приняты для совместимости; их сходимость следует проверять по полному логу.
+ok
+test_comparators_detect_corruption (__main__.Regression.test_comparators_detect_corruption) ... ok
+test_domain_geometry (__main__.Regression.test_domain_geometry) ... 38416 grid/process combinations OK; 80x80/P2 domain ratio=1.975609756098; 4x6/P4=2x2
+ok
+test_failed_solves_and_writes (__main__.Regression.test_failed_solves_and_writes) ... ok
+test_full_fields (__main__.Regression.test_full_fields) ... field omp_80x80_p1_t1.bin: max|difference|=0.000e+00
+field omp_80x80_p1_t4.bin: max|difference|=1.110e-16
+field omp_80x80_p1_t16.bin: max|difference|=1.110e-16
+field mpi_80x80_p1_t1.bin: max|difference|=0.000e+00
+field mpi_80x80_p2_t1.bin: max|difference|=1.388e-16
+field mpi_80x80_p4_t1.bin: max|difference|=1.110e-16
+field hyb_80x80_p1_t4.bin: max|difference|=2.220e-16
+field hyb_80x80_p2_t4.bin: max|difference|=1.110e-16
+field omp_20x30_p1_t1.bin: max|difference|=0.000e+00
+field omp_20x30_p1_t4.bin: max|difference|=1.110e-16
+field omp_20x30_p1_t16.bin: max|difference|=1.110e-16
+field mpi_20x30_p1_t1.bin: max|difference|=0.000e+00
+field mpi_20x30_p2_t1.bin: max|difference|=1.110e-16
+field mpi_20x30_p4_t1.bin: max|difference|=1.110e-16
+field hyb_20x30_p1_t4.bin: max|difference|=1.110e-16
+field hyb_20x30_p2_t4.bin: max|difference|=1.110e-16
+field omp_19x23_p1_t1.bin: max|difference|=0.000e+00
+field omp_19x23_p1_t4.bin: max|difference|=1.110e-16
+field omp_19x23_p1_t16.bin: max|difference|=1.110e-16
+field mpi_19x23_p1_t1.bin: max|difference|=0.000e+00
+field mpi_19x23_p2_t1.bin: max|difference|=1.110e-16
+field mpi_19x23_p4_t1.bin: max|difference|=1.110e-16
+field hyb_19x23_p1_t4.bin: max|difference|=1.110e-16
+field hyb_19x23_p2_t4.bin: max|difference|=1.110e-16
+field omp_4x6_p1_t1.bin: max|difference|=0.000e+00
+field omp_4x6_p1_t4.bin: max|difference|=5.551e-17
+field omp_4x6_p1_t16.bin: max|difference|=0.000e+00
+field mpi_4x6_p1_t1.bin: max|difference|=0.000e+00
+field mpi_4x6_p2_t1.bin: max|difference|=2.776e-17
+field mpi_4x6_p4_t1.bin: max|difference|=2.776e-17
+field hyb_4x6_p1_t4.bin: max|difference|=5.551e-17
+field hyb_4x6_p2_t4.bin: max|difference|=2.776e-17
+ok
+test_solver_status (__main__.Regression.test_solver_status) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 16.978s
+
+OK
+Evidence: /Users/adoronin001/Shirlineyn_Folder/tmp/skipod-report-20261103/cuda-regression

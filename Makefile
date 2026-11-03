@@ -53,7 +53,7 @@ else
   MPIENV   := OMPI_CXX=g++
 endif
 
-HDR := src/problem.h src/solver.h src/common.h
+HDR := src/problem.h src/solver.h src/common.h src/decomp.h
 
 # CUDA. На Polus /usr/local/cuda -> cuda-10.2, карты Tesla P100 (sm_60).
 # Код для GPU собирает nvcc с хост-компилятором по умолчанию (GCC 4.8.5);
@@ -83,6 +83,9 @@ cg_cuda.o: src/cg_cuda.cu src/cg_cuda.h $(HDR)
 poisson_cuda: src/poisson_mpi.cpp cg_cuda.o src/cg_cuda.h $(HDR)
 	$(MPIENV) $(MPICXX) $(CXXFLAGS) -DUSE_CUDA -o $@ $< cg_cuda.o \
 	    -L$(CUDA_HOME)/lib64 -lcudart -Wl,-rpath,$(CUDA_HOME)/lib64
+
+trace_cg: tools/trace_cg.cpp $(HDR)
+	$(CXX) $(CXXFLAGS) -Isrc -o $@ $<
 
 clean:
 	rm -f poisson_seq poisson_omp poisson_mpi poisson_hyb poisson_cuda cg_cuda.o

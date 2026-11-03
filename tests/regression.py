@@ -51,6 +51,16 @@ def alter(source, target, changes):
 
 
 class Regression(unittest.TestCase):
+    def test_domain_geometry(self):
+        exe = OUTPUT / "decomposition"
+        command = shlex.split(os.environ.get("CXX", "c++"))
+        result = run(command + ["-std=c++11", "-O0", "-I", ROOT / "src",
+                                ROOT / "tests/decomposition.cpp", "-o", exe])
+        self.assertEqual(result.returncode, 0, result.stderr)
+        result = run([exe])
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        print(result.stdout, end="", flush=True)
+
     def test_solver_status(self):
         exe = OUTPUT / "solver_status"
         command = shlex.split(os.environ.get("CXX", "c++"))
@@ -107,7 +117,7 @@ class Regression(unittest.TestCase):
         cases = [("omp", 1, t) for t in (1, 4, 16)]
         cases += [("mpi", p, 1) for p in (1, 2, 4)]
         cases += [("hyb", p, 4) for p in (1, 2)]
-        for m, n in ((80, 80), (20, 30), (19, 23)):
+        for m, n in ((80, 80), (20, 30), (19, 23), (4, 6)):
             reference = OUTPUT / f"seq_{m}x{n}.bin"
             r = run([ROOT / "poisson_seq", m, n, "--out", reference])
             self.assertEqual(r.returncode, 0, r.stderr)

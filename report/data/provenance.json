@@ -1,0 +1,39 @@
+{
+  "source_sha256": "98b4704cedb5bb4ebf57462f09cb0ef86a2ac03d28ba0e59cde0daa59240cade",
+  "diagnostic_delta": 1e-06,
+  "reference_deltas": [
+    1e-12,
+    1e-13
+  ],
+  "norm_domain": "all interior nodes of Pi",
+  "fem_points": [
+    [
+      2.0,
+      0.0
+    ],
+    [
+      1.5,
+      0.3
+    ],
+    [
+      2.5,
+      -0.8
+    ],
+    [
+      2.8,
+      1.0
+    ],
+    [
+      1.2,
+      -0.2
+    ]
+  ],
+  "fem_values": [
+    0.791541548692,
+    0.909701773896,
+    0.915520114696,
+    -0.549224965113,
+    0.815692173244
+  ],
+  "diagnostic_timings_excluded": true
+}

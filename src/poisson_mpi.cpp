@@ -11,8 +11,8 @@
 // прямоугольных блоков, Px*Py = P. По каждой оси узлы раздаются поровну,
 // остаток — по одному первым блокам, поэтому размеры любых двух блоков по
 // x (и по y) отличаются не больше чем на единицу. Из всех разложений
-// P = Px*Py выбирается то, при котором отношение nx/ny в каждом блоке
-// ближе всего к 1; требование задания — nx/ny в [1/2, 2].
+// P = Px*Py выбирается по форме геометрических доменов (с общей границей),
+// а не по числу уникальных неизвестных. Определение и критерий — decomp.h.
 //
 // Связь между блоками — два вида операций на итерацию CG:
 //   обмен теневыми слоями вектора p перед применением оператора A
@@ -33,45 +33,7 @@
 #include "cg_cuda.h"
 #endif
 
-struct Decomp {
-    int Px, Py;
-    bool ok;       // выполнено ли требование 1/2 <= nx/ny <= 2 во всех блоках
-    double worst;  // наихудшее отношение max(nx/ny, ny/nx) по блокам
-};
-
-// Размер и смещение части c из parts при делении n узлов поровну.
-static void split(int n, int parts, int c, int& len, int& off)
-{
-    const int base = n / parts, rem = n % parts;
-    len = base + (c < rem ? 1 : 0);
-    off = c * base + (c < rem ? c : rem);
-}
-
-static Decomp choose_decomp(int P, int nxg, int nyg)
-{
-    Decomp best;
-    best.Px = 0;
-    best.Py = 0;
-    best.ok = false;
-    best.worst = 1e300;
-    for (int Px = 1; Px <= P; ++Px) {
-        if (P % Px) continue;
-        const int Py = P / Px;
-        if (Px > nxg || Py > nyg) continue;
-        // Крайние размеры блоков по каждой оси.
-        const double xmin = nxg / Px, xmax = (nxg + Px - 1) / Px;
-        const double ymin = nyg / Py, ymax = (nyg + Py - 1) / Py;
-        const double worst = std::max(std::max(xmax / ymin, ymin / xmax),
-                                      std::max(xmin / ymax, ymax / xmin));
-        if (worst < best.worst) {
-            best.Px = Px;
-            best.Py = Py;
-            best.worst = worst;
-            best.ok = worst <= 2.0;
-        }
-    }
-    return best;
-}
+#include "decomp.h"
 
 // Обмены для блока внутри декартовой решётки процессов.
 // Для CPU-решателя — halo() над вектором в памяти процесса; для GPU —
@@ -226,10 +188,13 @@ int main(int argc, char** argv)
         std::printf("poisson_mpi: M=%d N=%d h1=%.6g h2=%.6g eps=%.6g delta=%g procs=%d threads=%d "
                     "(MPI thread level %d)\n",
                     gr.M, gr.N, gr.h1, gr.h2, gr.eps, opt.delta, size, omp_threads(), provided);
-        std::printf("decomposition %d x %d, blocks %d..%d x %d..%d nodes, worst nx/ny ratio %.3f%s\n",
+        std::printf("decomposition %d x %d, blocks %d..%d x %d..%d owned nodes, worst domain node ratio %.3f%s\n",
                     dc.Px, dc.Py, nxg / dc.Px, (nxg + dc.Px - 1) / dc.Px, nyg / dc.Py,
                     (nyg + dc.Py - 1) / dc.Py, dc.worst,
-                    dc.ok ? "" : "  WARNING: outside [1/2, 2]");
+                    dc.ok ? "" : "  WARNING: domain outside [1/2, 2]");
+        std::printf("domain nodes (including shared boundaries) %d..%d x %d..%d\n",
+                    gr.M / dc.Px + 1, (gr.M + dc.Px - 1) / dc.Px + 1,
+                    gr.N / dc.Py + 1, (gr.N + dc.Py - 1) / dc.Py + 1);
     }
 
     MpiComm comm(cart, &bl);

@@ -1,0 +1,26 @@
+[
+  {
+    "delta": 1e-06,
+    "iterations": 1018,
+    "error_inf": 0.00021798813572138087,
+    "fem_point_error": 0.00040369499873182946
+  },
+  {
+    "delta": 1e-08,
+    "iterations": 1508,
+    "error_inf": 1.4179923023549534e-06,
+    "fem_point_error": 0.00032293257870263936
+  },
+  {
+    "delta": 1e-10,
+    "iterations": 1991,
+    "error_inf": 9.033550643633426e-09,
+    "fem_point_error": 0.00032274187502390195
+  },
+  {
+    "delta": 1e-13,
+    "iterations": 2582,
+    "error_inf": 0.0,
+    "fem_point_error": 0.00032274159582679207
+  }
+]

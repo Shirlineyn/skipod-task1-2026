@@ -1,0 +1,172 @@
+Sender: LSF System <lsfadmin@polus-c4-ib.bmc.hpc.cs.msu.ru>
+Subject: Job 1612342: <skipod_validation> in cluster <MSUCluster> Done
+
+Job <skipod_validation> was submitted from host <polus-ib.bmc.hpc.cs.msu.ru> by user <edu-cmc-skmodel26-609-02> in cluster <MSUCluster> at Tue Nov  3 11:47:17 2026
+Job was executed on host(s) <2*polus-c4-ib.bmc.hpc.cs.msu.ru>, in queue <short>, as user <edu-cmc-skmodel26-609-02> in cluster <MSUCluster> at Tue Nov  3 11:47:17 2026
+</home_edu/edu-cmc-skmodel26-609/edu-cmc-skmodel26-609-02> was used as the home directory.
+</polusfs/home_edu/edu-cmc-skmodel26-609/edu-cmc-skmodel26-609-02/tmp/skipod-report-20261103> was used as the working directory.
+Started at Tue Nov  3 11:47:17 2026
+Terminated at Tue Nov  3 11:47:22 2026
+Results reported at Tue Nov  3 11:47:22 2026
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#!/bin/bash
+# Отправлять из корня подготовленной копии: bsub < jobs/lsf/regression/validation.lsf
+# Использовать новый каталог results/polus/validation для каждого прогона.
+#BSUB -J skipod_validation
+#BSUB -q short
+#BSUB -W 00:10
+#BSUB -n 2
+#BSUB -R "affinity[core(4)] span[hosts=1]"
+#BSUB -gpu "num=2:mode=exclusive_process"
+#BSUB -m "polus-c3-ib polus-c4-ib"
+#BSUB -x
+#BSUB -o validation.%J.out
+#BSUB -e validation.%J.err
+set -euo pipefail
+source /polusfs/setenv/setup.SMPI
+mkdir -p results/polus
+bash tests/run_polus_regression.sh results/polus/validation
+
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   5.43 sec.
+    Max Memory :                                 8 MB
+    Average Memory :                             6.00 MB
+    Total Requested Memory :                     -
+    Delta Memory :                               -
+    Max Swap :                                   -
+    Max Processes :                              5
+    Max Threads :                                6
+    Run time :                                   9 sec.
+    Turnaround time :                            5 sec.
+
+The output (if any) follows:
+
+poisson_omp: M=80 N=80 h1=0.0275 h2=0.04125 eps=0.00170156 delta=1e-06 threads=0
+iters=113 restarts=0 last_step=9.602e-07 resid=1.270e-03 J=-7.799800522813e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8430215569  max_D|w|=0.9998601426  nodes_in_D=2924
+time: setup=0.0012 cg=0.0028 total=0.0040 s
+solution written to results/polus/validation/seq_80x80.bin
+RESULT prog=seq M=80 N=80 procs=1 threads=0 iters=113 time=0.004042 cg_time=0.002796 intw=1.843021556897e+00 maxw=9.998601426134e-01 resid=1.270e-03 restarts=0 status=converged
+poisson_omp: M=80 N=80 h1=0.0275 h2=0.04125 eps=0.00170156 delta=1e-06 threads=4
+iters=113 restarts=0 last_step=9.602e-07 resid=1.270e-03 J=-7.799800522813e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8430215569  max_D|w|=0.9998601426  nodes_in_D=2924
+time: setup=0.0006 cg=0.0021 total=0.0028 s
+solution written to results/polus/validation/omp_80x80.bin
+RESULT prog=omp M=80 N=80 procs=1 threads=4 iters=113 time=0.002750 cg_time=0.002119 intw=1.843021556897e+00 maxw=9.998601426134e-01 resid=1.270e-03 restarts=0 status=converged
+poisson_mpi: M=80 N=80 h1=0.0275 h2=0.04125 eps=0.00170156 delta=1e-06 procs=2 threads=0 (MPI thread level 1)
+decomposition 1 x 2, blocks 79..79 x 39..40 owned nodes, worst domain node ratio 1.976
+domain nodes (including shared boundaries) 81..81 x 41..41
+iters=113 restarts=0 last_step=9.602e-07 resid=1.270e-03 J=-7.799800522813e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8430215569  max_D|w|=0.9998601426  nodes_in_D=2924
+time: setup=0.0007 cg=0.0023 total=0.0030 s; inside cg: halo=0.0005 allreduce=0.0003 s
+solution written to results/polus/validation/mpi_80x80.bin
+RESULT prog=mpi M=80 N=80 procs=2 threads=0 iters=113 time=0.002993 cg_time=0.002297 intw=1.843021556897e+00 maxw=9.998601426134e-01 resid=1.270e-03 restarts=0 decomp=1x2 halo=0.000467 allreduce=0.000332 status=converged
+poisson_mpi: M=80 N=80 h1=0.0275 h2=0.04125 eps=0.00170156 delta=1e-06 procs=2 threads=4 (MPI thread level 1)
+decomposition 1 x 2, blocks 79..79 x 39..40 owned nodes, worst domain node ratio 1.976
+domain nodes (including shared boundaries) 81..81 x 41..41
+iters=113 restarts=0 last_step=9.602e-07 resid=1.270e-03 J=-7.799800522813e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8430215569  max_D|w|=0.9998601426  nodes_in_D=2924
+time: setup=0.0004 cg=0.0026 total=0.0030 s; inside cg: halo=0.0005 allreduce=0.0004 s
+solution written to results/polus/validation/hyb_80x80.bin
+RESULT prog=hyb M=80 N=80 procs=2 threads=4 iters=113 time=0.002994 cg_time=0.002577 intw=1.843021556897e+00 maxw=9.998601426134e-01 resid=1.270e-03 restarts=0 decomp=1x2 halo=0.000524 allreduce=0.000398 status=converged
+poisson_mpi: M=80 N=80 h1=0.0275 h2=0.04125 eps=0.00170156 delta=1e-06 procs=1 threads=0 (MPI thread level 1)
+decomposition 1 x 1, blocks 79..79 x 79..79 owned nodes, worst domain node ratio 1.000
+domain nodes (including shared boundaries) 81..81 x 81..81
+iters=113 restarts=0 last_step=9.602e-07 resid=1.270e-03 J=-7.799800522812e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8430215569  max_D|w|=0.9998601426  nodes_in_D=2924
+time: setup=0.0006 cg=0.0062 total=0.0068 s; inside cg: halo=0.0000 allreduce=0.0047 s
+  (cuda: halo includes pack/copy GPU<->host, allreduce includes waiting for kernels; MPI part: halo=0.0000 allreduce=0.0002 s on rank 0)
+gpu rank 0 polus-c4-ib: device 0 of 2: Tesla P100-SXM2-16GB, sm_60, 56 SMs, bus 0002:01:00.0
+solution written to results/polus/validation/cuda_p1_80x80.bin
+RESULT prog=cuda M=80 N=80 procs=1 threads=0 iters=113 time=0.006839 cg_time=0.006235 intw=1.843021556897e+00 maxw=9.998601426134e-01 resid=1.270e-03 restarts=0 decomp=1x1 halo=0.000000 allreduce=0.004704 status=converged
+poisson_mpi: M=80 N=80 h1=0.0275 h2=0.04125 eps=0.00170156 delta=1e-06 procs=2 threads=0 (MPI thread level 1)
+decomposition 1 x 2, blocks 79..79 x 39..40 owned nodes, worst domain node ratio 1.976
+domain nodes (including shared boundaries) 81..81 x 41..41
+iters=113 restarts=0 last_step=9.602e-07 resid=1.270e-03 J=-7.799800522812e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8430215569  max_D|w|=0.9998601426  nodes_in_D=2924
+time: setup=0.0008 cg=0.0106 total=0.0113 s; inside cg: halo=0.0037 allreduce=0.0055 s
+  (cuda: halo includes pack/copy GPU<->host, allreduce includes waiting for kernels; MPI part: halo=0.0006 allreduce=0.0010 s on rank 0)
+gpu rank 0 polus-c4-ib: device 0 of 2: Tesla P100-SXM2-16GB, sm_60, 56 SMs, bus 0002:01:00.0
+gpu rank 1 polus-c4-ib: device 1 of 2: Tesla P100-SXM2-16GB, sm_60, 56 SMs, bus 0006:01:00.0
+solution written to results/polus/validation/cuda_p2_80x80.bin
+RESULT prog=cuda M=80 N=80 procs=2 threads=0 iters=113 time=0.011326 cg_time=0.010556 intw=1.843021556897e+00 maxw=9.998601426134e-01 resid=1.270e-03 restarts=0 decomp=1x2 halo=0.003656 allreduce=0.005534 status=converged
+poisson_omp: M=19 N=23 h1=0.115789 h2=0.143478 eps=0.020586 delta=1e-06 threads=0
+iters=31 restarts=0 last_step=9.722e-07 resid=1.172e-04 J=-8.079325312734e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8689731905  max_D|w|=0.9970698046  nodes_in_D=212
+time: setup=0.0001 cg=0.0001 total=0.0002 s
+solution written to results/polus/validation/seq_19x23.bin
+RESULT prog=seq M=19 N=23 procs=1 threads=0 iters=31 time=0.000164 cg_time=0.000064 intw=1.868973190483e+00 maxw=9.970698045936e-01 resid=1.172e-04 restarts=0 status=converged
+poisson_omp: M=19 N=23 h1=0.115789 h2=0.143478 eps=0.020586 delta=1e-06 threads=4
+iters=31 restarts=0 last_step=9.722e-07 resid=1.172e-04 J=-8.079325312734e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8689731905  max_D|w|=0.9970698046  nodes_in_D=212
+time: setup=0.0002 cg=0.0003 total=0.0005 s
+solution written to results/polus/validation/omp_19x23.bin
+RESULT prog=omp M=19 N=23 procs=1 threads=4 iters=31 time=0.000500 cg_time=0.000332 intw=1.868973190483e+00 maxw=9.970698045936e-01 resid=1.172e-04 restarts=0 status=converged
+poisson_mpi: M=19 N=23 h1=0.115789 h2=0.143478 eps=0.020586 delta=1e-06 procs=2 threads=0 (MPI thread level 1)
+decomposition 1 x 2, blocks 18..18 x 11..11 owned nodes, worst domain node ratio 1.667
+domain nodes (including shared boundaries) 20..20 x 12..13
+iters=31 restarts=0 last_step=9.722e-07 resid=1.172e-04 J=-8.079325312734e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8689731905  max_D|w|=0.9970698046  nodes_in_D=212
+time: setup=0.0001 cg=0.0003 total=0.0003 s; inside cg: halo=0.0001 allreduce=0.0001 s
+solution written to results/polus/validation/mpi_19x23.bin
+RESULT prog=mpi M=19 N=23 procs=2 threads=0 iters=31 time=0.000342 cg_time=0.000279 intw=1.868973190483e+00 maxw=9.970698045936e-01 resid=1.172e-04 restarts=0 decomp=1x2 halo=0.000115 allreduce=0.000121 status=converged
+poisson_mpi: M=19 N=23 h1=0.115789 h2=0.143478 eps=0.020586 delta=1e-06 procs=2 threads=4 (MPI thread level 1)
+decomposition 1 x 2, blocks 18..18 x 11..11 owned nodes, worst domain node ratio 1.667
+domain nodes (including shared boundaries) 20..20 x 12..13
+iters=31 restarts=0 last_step=9.722e-07 resid=1.172e-04 J=-8.079325312734e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8689731905  max_D|w|=0.9970698046  nodes_in_D=212
+time: setup=0.0003 cg=0.0011 total=0.0014 s; inside cg: halo=0.0002 allreduce=0.0003 s
+solution written to results/polus/validation/hyb_19x23.bin
+RESULT prog=hyb M=19 N=23 procs=2 threads=4 iters=31 time=0.001357 cg_time=0.001096 intw=1.868973190483e+00 maxw=9.970698045936e-01 resid=1.172e-04 restarts=0 decomp=1x2 halo=0.000227 allreduce=0.000321 status=converged
+poisson_mpi: M=19 N=23 h1=0.115789 h2=0.143478 eps=0.020586 delta=1e-06 procs=1 threads=0 (MPI thread level 1)
+decomposition 1 x 1, blocks 18..18 x 22..22 owned nodes, worst domain node ratio 1.200
+domain nodes (including shared boundaries) 20..20 x 24..24
+iters=31 restarts=0 last_step=9.722e-07 resid=1.172e-04 J=-8.079325312734e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8689731905  max_D|w|=0.9970698046  nodes_in_D=212
+time: setup=0.0006 cg=0.0018 total=0.0024 s; inside cg: halo=0.0000 allreduce=0.0014 s
+  (cuda: halo includes pack/copy GPU<->host, allreduce includes waiting for kernels; MPI part: halo=0.0000 allreduce=0.0001 s on rank 0)
+gpu rank 0 polus-c4-ib: device 0 of 2: Tesla P100-SXM2-16GB, sm_60, 56 SMs, bus 0002:01:00.0
+solution written to results/polus/validation/cuda_p1_19x23.bin
+RESULT prog=cuda M=19 N=23 procs=1 threads=0 iters=31 time=0.002407 cg_time=0.001805 intw=1.868973190483e+00 maxw=9.970698045936e-01 resid=1.172e-04 restarts=0 decomp=1x1 halo=0.000000 allreduce=0.001362 status=converged
+poisson_mpi: M=19 N=23 h1=0.115789 h2=0.143478 eps=0.020586 delta=1e-06 procs=2 threads=0 (MPI thread level 1)
+decomposition 1 x 2, blocks 18..18 x 11..11 owned nodes, worst domain node ratio 1.667
+domain nodes (including shared boundaries) 20..20 x 12..13
+iters=31 restarts=0 last_step=9.722e-07 resid=1.172e-04 J=-8.079325312734e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8689731905  max_D|w|=0.9970698046  nodes_in_D=212
+time: setup=0.0008 cg=0.0032 total=0.0040 s; inside cg: halo=0.0012 allreduce=0.0017 s
+  (cuda: halo includes pack/copy GPU<->host, allreduce includes waiting for kernels; MPI part: halo=0.0003 allreduce=0.0004 s on rank 0)
+gpu rank 0 polus-c4-ib: device 0 of 2: Tesla P100-SXM2-16GB, sm_60, 56 SMs, bus 0002:01:00.0
+gpu rank 1 polus-c4-ib: device 1 of 2: Tesla P100-SXM2-16GB, sm_60, 56 SMs, bus 0006:01:00.0
+solution written to results/polus/validation/cuda_p2_19x23.bin
+RESULT prog=cuda M=19 N=23 procs=2 threads=0 iters=31 time=0.003999 cg_time=0.003214 intw=1.868973190483e+00 maxw=9.970698045936e-01 resid=1.172e-04 restarts=0 decomp=1x2 halo=0.001151 allreduce=0.001663 status=converged
+PASS: seq_maxit
+PASS: seq_write
+PASS: seq_nan
+PASS: omp_maxit
+PASS: omp_write
+PASS: omp_nan
+PASS: mpi_maxit
+PASS: mpi_write
+PASS: mpi_nan
+PASS: hyb_maxit
+PASS: hyb_write
+PASS: hyb_nan
+PASS: cuda_maxit
+PASS: cuda_write
+PASS: cuda_nan
+ALL_RUNTIME_CHECKS_PASSED
+
+
+PS:
+
+Read file <validation.1612342.err> for stderr output of this job.
+

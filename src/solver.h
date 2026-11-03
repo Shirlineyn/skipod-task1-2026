@@ -80,6 +80,15 @@ inline void finish_cg_result(CGResult& res)
         res.status = CG_EXACT_RESIDUAL;
 }
 
+// Необязательный наблюдатель для диагностического запуска. При обычном
+// расчёте отсутствует; замеры с ним нельзя включать в таблицы ускорения.
+// accepted=false означает откат попытки, d уже восстановлен.
+struct CGObserver {
+    virtual void sample(long iteration, double step, bool accepted,
+                        const std::vector<double>& d) = 0;
+    virtual ~CGObserver() {}
+};
+
 // ---- Операции над одной строкой li; индекс j = 1..ny, j = 0 и ny+1 — тень.
 
 // y = A v; накапливает (y, v) и (v, v) по строке (без веса h1*h2).
@@ -191,7 +200,7 @@ static inline void block_A(const problem::Grid& gr, const problem::Block& bl,
 // на выходе — приближённое решение.
 inline CGResult cg_solve(const problem::Grid& gr, const problem::Block& bl,
                          const problem::Coeffs& c, std::vector<double>& d,
-                         Comm& comm, const CGParams& prm)
+                         Comm& comm, const CGParams& prm, CGObserver* observer = 0)
 {
     const int sz = bl.size(), s = bl.stride, nx = bl.nx, ny = bl.ny;
     const double cell = gr.h1 * gr.h2;  // вес скалярного произведения (8)
@@ -213,6 +222,8 @@ inline CGResult cg_solve(const problem::Grid& gr, const problem::Block& bl,
 
     double zr = 0.0, J_old = 0.0;
     bool need_restart = true;  // первая итерация — скорейший спуск
+
+    if (observer) observer->sample(0, 0.0, true, d);
 
     while (true) {
         if (need_restart) {
@@ -291,6 +302,7 @@ inline CGResult cg_solve(const problem::Grid& gr, const problem::Block& bl,
             for (int li = 1; li <= nx; ++li) row_axpy(ny, -alpha, p + li * s, w + li * s);
             res.J = J_old;
             res.last_step = previous_step;
+            if (observer) observer->sample(res.iters, res.last_step, false, d);
             need_restart = true;
             if (res.restarts > 20) {
                 res.status = CG_RESTART_LIMIT;
@@ -299,6 +311,8 @@ inline CGResult cg_solve(const problem::Grid& gr, const problem::Block& bl,
             continue;
         }
         J_old = J_new;
+
+        if (observer) observer->sample(res.iters, res.last_step, true, d);
 
         if (res.last_step < prm.delta) {
             res.status = CG_CONVERGED;
