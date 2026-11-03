@@ -10,3 +10,13 @@ poisson_cuda
 # (корневой .gitignore исключает *.out и *.err).
 !*.out
 !*.err
+
+# Не включать учётные данные и генерируемые файлы регрессий.
+.env
+.env.*
+id_rsa*
+id_ed25519*
+*.pem
+*.key
+__pycache__/
+/results/local/*/regression/

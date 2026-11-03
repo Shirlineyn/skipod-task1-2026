@@ -288,16 +288,7 @@ int main(int argc, char** argv)
                     "for kernels; MPI part: halo=%.4f allreduce=%.4f s on rank 0)\n",
                     comm.t_halo, comm.t_reduce);
 #endif
-        std::printf("RESULT prog=%s M=%d N=%d procs=%d threads=%d iters=%ld time=%.6f cg_time=%.6f "
-                    "intw=%.12e maxw=%.12e resid=%.3e restarts=%d decomp=%dx%d halo=%.6f allreduce=%.6f\n",
-#ifdef USE_CUDA
-                    "cuda",
-#else
-                    omp_threads() ? "hyb" : "mpi",
-#endif
-                    gr.M, gr.N, size, omp_threads(), res.iters,
-                    tm[0] + tm[1], tm[1], st[0], st[1], res.resid, res.restarts, dc.Px, dc.Py,
-                    tm[2], tm[3]);
+
     }
 
 #ifdef USE_CUDA
@@ -315,6 +306,19 @@ int main(int argc, char** argv)
             for (int r = 0; r < size; ++r) std::printf("gpu rank %d %s\n", r, &all[(size_t)r * L]);
     }
 #endif
+
+    // Все ранги заканчивают согласованно, до сборки или записи поля.
+    int failed = res.converged() ? 0 : 1, any_failed = 0;
+    MPI_Allreduce(&failed, &any_failed, 1, MPI_INT, MPI_MAX, cart);
+    if (any_failed) {
+        if (rank == 0)
+            std::fprintf(stderr, "SOLVER_ERROR status=%s iters=%ld last_step=%.6e resid=%.6e\n",
+                         cg_status_name(res.status), res.iters, res.last_step, res.resid);
+        MPI_Comm_free(&cart);
+        MPI_Finalize();
+        return 3;
+    }
+    int write_failed = 0;
 
     if (opt.binding) {
         // Строки всех процессов собираются на процессе 0, чтобы не перемешались.
@@ -368,12 +372,27 @@ int main(int argc, char** argv)
             }
             if (write_solution(opt.out, gr, w))
                 std::printf("solution written to %s\n", opt.out.c_str());
-            else
+            else {
                 std::fprintf(stderr, "cannot write %s\n", opt.out.c_str());
+                write_failed = 1;
+            }
         }
     }
 
+    MPI_Bcast(&write_failed, 1, MPI_INT, 0, cart);
+    if (rank == 0 && !write_failed) {
+        std::printf("RESULT prog=%s M=%d N=%d procs=%d threads=%d iters=%ld time=%.6f cg_time=%.6f "
+                    "intw=%.12e maxw=%.12e resid=%.3e restarts=%d decomp=%dx%d halo=%.6f allreduce=%.6f status=%s\n",
+#ifdef USE_CUDA
+                    "cuda",
+#else
+                    omp_threads() ? "hyb" : "mpi",
+#endif
+                    gr.M, gr.N, size, omp_threads(), res.iters,
+                    tm[0] + tm[1], tm[1], st[0], st[1], res.resid, res.restarts, dc.Px, dc.Py,
+                    tm[2], tm[3], cg_status_name(res.status));
+    }
     MPI_Comm_free(&cart);
     MPI_Finalize();
-    return 0;
+    return write_failed ? 2 : 0;
 }

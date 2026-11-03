@@ -25,6 +25,7 @@
 #include <cmath>
 #include <cstdio>
 #include <vector>
+#include <limits>
 #include "problem.h"
 
 struct Comm {
@@ -40,13 +41,44 @@ struct CGParams {
     int rank;       // печатает только процесс 0
 };
 
+enum CGStatus { CG_CONVERGED, CG_EXACT_RESIDUAL, CG_MAXIT, CG_BREAKDOWN, CG_RESTART_LIMIT };
+
+inline const char* cg_status_name(CGStatus status)
+{
+    switch (status) {
+    case CG_CONVERGED: return "converged";
+    case CG_EXACT_RESIDUAL: return "exact_residual";
+    case CG_MAXIT: return "max_iterations";
+    case CG_RESTART_LIMIT: return "restart_limit";
+    default: return "breakdown";
+    }
+}
+
+inline bool cg_finite(double x)
+{
+    return x == x && std::fabs(x) <= std::numeric_limits<double>::max();
+}
+
 struct CGResult {
     long iters;        // число выполненных итераций
     int restarts;      // перезапусков из-за нарушения монотонности J
     double last_step;  // ||w(k+1) - w(k)||_E на последней итерации
     double J;          // значение функционала на последней итерации
     double resid;      // ||B - A d||_E по окончании
+    CGStatus status;
+    CGResult() : iters(0), restarts(0), last_step(0), J(0), resid(0), status(CG_MAXIT) {}
+    bool converged() const { return status == CG_CONVERGED || status == CG_EXACT_RESIDUAL; }
 };
+
+inline void finish_cg_result(CGResult& res)
+{
+    if (!cg_finite(res.resid) || !cg_finite(res.J) || !cg_finite(res.last_step))
+        res.status = CG_BREAKDOWN;
+    // Нулевое направление само по себе не доказывает точного решения:
+    // проверяем заново вычисленную невязку, а не только рекуррентную.
+    else if (res.resid == 0.0)
+        res.status = CG_EXACT_RESIDUAL;
+}
 
 // ---- Операции над одной строкой li; индекс j = 1..ny, j = 0 и ny+1 — тень.
 
@@ -198,9 +230,14 @@ inline CGResult cg_solve(const problem::Grid& gr, const problem::Block& bl,
             comm.allreduce(acc, 2);
             zr = acc[0];
             J_old = -0.5 * acc[1];
+            res.J = J_old;
             need_restart = false;
         }
         if (res.iters >= prm.maxit) break;
+        if (!cg_finite(zr) || zr < 0.0 || !cg_finite(J_old)) {
+            res.status = CG_BREAKDOWN;
+            break;
+        }
 
         // 1) Ap = A p, скалярные произведения (Ap, p) и (p, p).
         comm.halo(p);
@@ -208,8 +245,15 @@ inline CGResult cg_solve(const problem::Grid& gr, const problem::Block& bl,
         block_A(gr, bl, c, p, Ap, acc1);
         comm.allreduce(acc1, 2);
         const double pAp = acc1[0], pp = acc1[1];
-        if (!(pAp > 0.0)) break;  // невязка обнулилась точно — шагать некуда
+        if (!(pAp > 0.0) || !cg_finite(pAp) || !(pp > 0.0) || !cg_finite(pp)) {
+            res.status = CG_BREAKDOWN;
+            break;
+        }
         const double alpha = zr / pAp;
+        if (!(alpha > 0.0) || !cg_finite(alpha)) {
+            res.status = CG_BREAKDOWN;
+            break;
+        }
 
         // 2) w += alpha p, r -= alpha Ap, z = D^{-1} r; (z, r) и J(w).
         double zr_l = 0.0, Jw_l = 0.0;
@@ -223,8 +267,13 @@ inline CGResult cg_solve(const problem::Grid& gr, const problem::Block& bl,
         const double zr_new = acc2[0];
         const double J_new = -0.5 * acc2[1];
         ++res.iters;
+        const double previous_step = res.last_step;
         res.last_step = std::fabs(alpha) * std::sqrt(pp);  // ||w(k+1) - w(k)||_E
         res.J = J_new;
+        if (!cg_finite(zr_new) || zr_new < 0.0 || !cg_finite(J_new) || !cg_finite(res.last_step)) {
+            res.status = CG_BREAKDOWN;
+            break;
+        }
 
         if (prm.verbose > 0 && prm.rank == 0 && res.iters % prm.verbose == 0)
             std::printf("  it %6ld  step %.3e  J %.12e\n", res.iters, res.last_step, J_new);
@@ -240,16 +289,28 @@ inline CGResult cg_solve(const problem::Grid& gr, const problem::Block& bl,
             // Откат к w(k), на которой монотонность ещё соблюдалась.
 #pragma omp parallel for schedule(static)
             for (int li = 1; li <= nx; ++li) row_axpy(ny, -alpha, p + li * s, w + li * s);
+            res.J = J_old;
+            res.last_step = previous_step;
             need_restart = true;
-            if (res.restarts > 20) break;
+            if (res.restarts > 20) {
+                res.status = CG_RESTART_LIMIT;
+                break;
+            }
             continue;
         }
         J_old = J_new;
 
-        if (res.last_step < prm.delta) break;
+        if (res.last_step < prm.delta) {
+            res.status = CG_CONVERGED;
+            break;
+        }
 
         // 3) p = z + beta p.
         const double beta = zr_new / zr;
+        if (!cg_finite(beta)) {
+            res.status = CG_BREAKDOWN;
+            break;
+        }
         zr = zr_new;
 #pragma omp parallel for schedule(static)
         for (int li = 1; li <= nx; ++li) row_dir(ny, beta, z + li * s, p + li * s);
@@ -265,6 +326,7 @@ inline CGResult cg_solve(const problem::Grid& gr, const problem::Block& bl,
     double acc[1] = {rr_l * cell};
     comm.allreduce(acc, 1);
     res.resid = std::sqrt(acc[0]);
+    finish_cg_result(res);
     return res;
 }
 

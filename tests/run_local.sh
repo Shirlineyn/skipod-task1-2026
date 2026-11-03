@@ -23,15 +23,15 @@ for g in "20 20" "40 40" "80 80" "400 600" "800 1200"; do
 done
 
 echo "== 2. Все программы на 80x80 должны дать то же решение"
-ref=$(grep "^RESULT prog=seq M=80 " "$log" | grep -o "intw=[^ ]*")
 check() {
-    local got
-    got=$("$@" | tee /dev/stderr | grep "^RESULT" | grep -o "intw=[^ ]*")
-    if [ "$got" = "$ref" ]; then echo "   match: $got"; else echo "   MISMATCH: $got vs $ref"; exit 1; fi
+    local tag=$1
+    shift
+    "$@" --out "$out/$tag.bin"
+    uv run --quiet "$here/tools/compare_solutions.py" "$out/sol_80x80.bin" "$out/$tag.bin"
 }
-for t in 1 4 16; do OMP_NUM_THREADS=$t check "$here/poisson_omp" 80 80 2>&1; done
-for p in 1 2 4; do check mpirun --oversubscribe -n $p "$here/poisson_mpi" 80 80 2>&1; done
-for p in 1 2; do OMP_NUM_THREADS=4 check mpirun --oversubscribe -n $p "$here/poisson_hyb" 80 80 2>&1; done
+for t in 1 4 16; do OMP_NUM_THREADS=$t check "omp_t$t" "$here/poisson_omp" 80 80; done
+for p in 1 2 4; do check "mpi_p$p" mpirun --oversubscribe -n "$p" "$here/poisson_mpi" 80 80; done
+for p in 1 2; do OMP_NUM_THREADS=4 check "hyb_p$p" mpirun --oversubscribe -n "$p" "$here/poisson_hyb" 80 80; done
 echo
 
 echo "== 3. Прямой решатель (scipy) против CG"
@@ -44,4 +44,6 @@ echo
 
 echo "== 5. Рисунок решения на самой мелкой сетке"
 uv run --quiet "$here/tools/plot_solution.py" "$out/sol_800x1200.bin" "$out/solution_800x1200.png"
+echo "== 6. Регрессионные проверки ошибок и неравномерного разбиения"
+uv run --quiet "$here/tests/regression.py" --output-dir "$out/regression"
 echo "logs: $out"

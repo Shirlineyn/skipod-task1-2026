@@ -1,0 +1,17 @@
+#!/bin/bash
+# Отправлять из корня подготовленной копии: bsub < jobs/lsf/regression/validation.lsf
+# Использовать новый каталог results/polus/validation для каждого прогона.
+#BSUB -J skipod_validation
+#BSUB -q short
+#BSUB -W 00:10
+#BSUB -n 2
+#BSUB -R "affinity[core(4)] span[hosts=1]"
+#BSUB -gpu "num=2:mode=exclusive_process"
+#BSUB -m "polus-c3-ib polus-c4-ib"
+#BSUB -x
+#BSUB -o validation.%J.out
+#BSUB -e validation.%J.err
+set -euo pipefail
+source /polusfs/setenv/setup.SMPI
+mkdir -p results/polus
+bash tests/run_polus_regression.sh results/polus/validation

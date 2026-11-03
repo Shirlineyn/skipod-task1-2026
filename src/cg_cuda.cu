@@ -372,9 +372,14 @@ CGResult GpuCG::solve(EdgeComm& comm, const CGParams& prm)
             reduce(acc);
             zr = acc[0];
             J_old = -0.5 * acc[1];
+            res.J = J_old;
             need_restart = false;
         }
         if (res.iters >= prm.maxit) break;
+        if (!cg_finite(zr) || zr < 0.0 || !cg_finite(J_old)) {
+            res.status = CG_BREAKDOWN;
+            break;
+        }
 
         // 1) Ap = A p, (Ap, p) и (p, p).
         halo(p);
@@ -382,8 +387,15 @@ CGResult GpuCG::solve(EdgeComm& comm, const CGParams& prm)
         double acc1[2];
         reduce(acc1);
         const double pAp = acc1[0], pp = acc1[1];
-        if (!(pAp > 0.0)) break;  // невязка обнулилась точно — шагать некуда
+        if (!(pAp > 0.0) || !cg_finite(pAp) || !(pp > 0.0) || !cg_finite(pp)) {
+            res.status = CG_BREAKDOWN;
+            break;
+        }
         const double alpha = zr / pAp;
+        if (!(alpha > 0.0) || !cg_finite(alpha)) {
+            res.status = CG_BREAKDOWN;
+            break;
+        }
 
         // 2) w += alpha p, r -= alpha Ap, z = D^{-1} r; (z, r) и J(w).
         k_step<<<grid, thr>>>(d, alpha, p, Ap, Dinv, B, w, r, z, part, nb);
@@ -392,8 +404,13 @@ CGResult GpuCG::solve(EdgeComm& comm, const CGParams& prm)
         const double zr_new = acc2[0];
         const double J_new = -0.5 * acc2[1];
         ++res.iters;
+        const double previous_step = res.last_step;
         res.last_step = std::fabs(alpha) * std::sqrt(pp);  // ||w(k+1) - w(k)||_E
         res.J = J_new;
+        if (!cg_finite(zr_new) || zr_new < 0.0 || !cg_finite(J_new) || !cg_finite(res.last_step)) {
+            res.status = CG_BREAKDOWN;
+            break;
+        }
 
         if (prm.verbose > 0 && prm.rank == 0 && res.iters % prm.verbose == 0)
             std::printf("  it %6ld  step %.3e  J %.12e\n", res.iters, res.last_step, J_new);
@@ -405,16 +422,28 @@ CGResult GpuCG::solve(EdgeComm& comm, const CGParams& prm)
                 std::printf("  it %ld: J grew (%.15e -> %.15e), restart from w(k)\n",
                             res.iters, J_old, J_new);
             k_axpy<<<grid, thr>>>(d, -alpha, p, w);
+            res.J = J_old;
+            res.last_step = previous_step;
             need_restart = true;
-            if (res.restarts > 20) break;
+            if (res.restarts > 20) {
+                res.status = CG_RESTART_LIMIT;
+                break;
+            }
             continue;
         }
         J_old = J_new;
 
-        if (res.last_step < prm.delta) break;
+        if (res.last_step < prm.delta) {
+            res.status = CG_CONVERGED;
+            break;
+        }
 
         // 3) p = z + beta p.
         const double beta = zr_new / zr;
+        if (!cg_finite(beta)) {
+            res.status = CG_BREAKDOWN;
+            break;
+        }
         zr = zr_new;
         k_dir<<<grid, thr>>>(d, beta, z, p);
     }
@@ -426,6 +455,7 @@ CGResult GpuCG::solve(EdgeComm& comm, const CGParams& prm)
     double acc[2];
     reduce(acc);
     res.resid = std::sqrt(acc[0]);
+    finish_cg_result(res);
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
     return res;

@@ -1,0 +1,5 @@
+cannot write results/polus/validation/missing/sol.bin
+poisson_omp: M=20 N=20 h1=0.11 h2=0.165 eps=0.027225 delta=1e-06 threads=4
+iters=31 restarts=0 last_step=9.195e-07 resid=9.986e-05 J=-8.579841363787e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8410722750  max_D|w|=0.9961234697  nodes_in_D=178
+time: setup=0.0003 cg=0.0004 total=0.0007 s

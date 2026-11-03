@@ -1,0 +1,163 @@
+== host: Darwin RU_L7DL4235F0 25.6.0 Darwin Kernel Version 25.6.0: Fri Jul 31 19:16:36 PDT 2026; root:xnu-12377.161.14~5/RELEASE_ARM64_T6030 arm64
+clang++ -O3 -std=c++11 -Wall -Wextra -o poisson_seq src/poisson_omp.cpp
+clang++ -O3 -std=c++11 -Wall -Wextra -Xpreprocessor -fopenmp -I/opt/homebrew/opt/libomp/include -L/opt/homebrew/opt/libomp/lib -lomp -o poisson_omp src/poisson_omp.cpp
+mpicxx -O3 -std=c++11 -Wall -Wextra -o poisson_mpi src/poisson_mpi.cpp
+mpicxx -O3 -std=c++11 -Wall -Wextra -Xpreprocessor -fopenmp -I/opt/homebrew/opt/libomp/include -L/opt/homebrew/opt/libomp/lib -lomp -o poisson_hyb src/poisson_mpi.cpp
+
+== 1. Последовательная программа на сгущающихся сетках (пункт 1 задания)
+poisson_omp: M=20 N=20 h1=0.11 h2=0.165 eps=0.027225 delta=1e-06 threads=0
+iters=31 restarts=0 last_step=9.195e-07 resid=9.986e-05 J=-8.579841363787e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8410722750  max_D|w|=0.9961234697  nodes_in_D=178
+time: setup=0.0000 cg=0.0000 total=0.0001 s
+solution written to /Users/adoronin001/Shirlineyn_Folder/Univer/6course/skipod-task1-2026/results/local/20261103-111110/sol_20x20.bin
+RESULT prog=seq M=20 N=20 procs=1 threads=0 iters=31 time=0.000052 cg_time=0.000035 intw=1.841072275012e+00 maxw=9.961234696905e-01 resid=9.986e-05 restarts=0 status=converged
+
+poisson_omp: M=40 N=40 h1=0.055 h2=0.0825 eps=0.00680625 delta=1e-06 threads=0
+iters=60 restarts=0 last_step=8.478e-07 resid=3.139e-04 J=-7.763674220435e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8365482078  max_D|w|=0.9987873656  nodes_in_D=722
+time: setup=0.0000 cg=0.0002 total=0.0002 s
+solution written to /Users/adoronin001/Shirlineyn_Folder/Univer/6course/skipod-task1-2026/results/local/20261103-111110/sol_40x40.bin
+RESULT prog=seq M=40 N=40 procs=1 threads=0 iters=60 time=0.000217 cg_time=0.000172 intw=1.836548207814e+00 maxw=9.987873656178e-01 resid=3.139e-04 restarts=0 status=converged
+
+poisson_omp: M=80 N=80 h1=0.0275 h2=0.04125 eps=0.00170156 delta=1e-06 threads=0
+iters=113 restarts=0 last_step=9.602e-07 resid=1.270e-03 J=-7.799800522813e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8430215569  max_D|w|=0.9998601426  nodes_in_D=2924
+time: setup=0.0002 cg=0.0025 total=0.0027 s
+solution written to /Users/adoronin001/Shirlineyn_Folder/Univer/6course/skipod-task1-2026/results/local/20261103-111110/sol_80x80.bin
+RESULT prog=seq M=80 N=80 procs=1 threads=0 iters=113 time=0.002651 cg_time=0.002462 intw=1.843021556897e+00 maxw=9.998601426134e-01 resid=1.270e-03 restarts=0 status=converged
+
+poisson_omp: M=400 N=600 h1=0.0055 h2=0.0055 eps=3.025e-05 delta=1e-06 threads=0
+iters=599 restarts=0 last_step=9.615e-07 resid=1.475e-02 J=-8.010171939421e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8478477067  max_D|w|=0.9999995894  nodes_in_D=110847
+time: setup=0.0054 cg=0.3176 total=0.3230 s
+solution written to /Users/adoronin001/Shirlineyn_Folder/Univer/6course/skipod-task1-2026/results/local/20261103-111110/sol_400x600.bin
+RESULT prog=seq M=400 N=600 procs=1 threads=0 iters=599 time=0.323039 cg_time=0.317650 intw=1.847847706716e+00 maxw=9.999995893658e-01 resid=1.475e-02 restarts=0 status=converged
+
+poisson_omp: M=800 N=1200 h1=0.00275 h2=0.00275 eps=7.5625e-06 delta=1e-06 threads=0
+iters=1018 restarts=0 last_step=9.989e-07 resid=6.360e-02 J=-8.036941092853e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8480576942  max_D|w|=0.9999996749  nodes_in_D=443943
+time: setup=0.0218 cg=2.1866 total=2.2084 s
+solution written to /Users/adoronin001/Shirlineyn_Folder/Univer/6course/skipod-task1-2026/results/local/20261103-111110/sol_800x1200.bin
+RESULT prog=seq M=800 N=1200 procs=1 threads=0 iters=1018 time=2.208367 cg_time=2.186604 intw=1.848057694198e+00 maxw=9.999996749223e-01 resid=6.360e-02 restarts=0 status=converged
+
+== 2. Все программы на 80x80 должны дать то же решение
+poisson_omp: M=80 N=80 h1=0.0275 h2=0.04125 eps=0.00170156 delta=1e-06 threads=1
+iters=113 restarts=0 last_step=9.602e-07 resid=1.270e-03 J=-7.799800522813e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8430215569  max_D|w|=0.9998601426  nodes_in_D=2924
+time: setup=0.0002 cg=0.0015 total=0.0017 s
+solution written to /Users/adoronin001/Shirlineyn_Folder/Univer/6course/skipod-task1-2026/results/local/20261103-111110/omp_t1.bin
+RESULT prog=omp M=80 N=80 procs=1 threads=1 iters=113 time=0.001704 cg_time=0.001455 intw=1.843021556897e+00 maxw=9.998601426134e-01 resid=1.270e-03 restarts=0 status=converged
+/Users/adoronin001/Shirlineyn_Folder/Univer/6course/skipod-task1-2026/results/local/20261103-111110/omp_t1.bin: max|difference|=0.000e+00, atol=1.000e-10 OK
+poisson_omp: M=80 N=80 h1=0.0275 h2=0.04125 eps=0.00170156 delta=1e-06 threads=4
+iters=113 restarts=0 last_step=9.602e-07 resid=1.270e-03 J=-7.799800522813e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8430215569  max_D|w|=0.9998601426  nodes_in_D=2924
+time: setup=0.0001 cg=0.0031 total=0.0033 s
+solution written to /Users/adoronin001/Shirlineyn_Folder/Univer/6course/skipod-task1-2026/results/local/20261103-111110/omp_t4.bin
+RESULT prog=omp M=80 N=80 procs=1 threads=4 iters=113 time=0.003257 cg_time=0.003140 intw=1.843021556897e+00 maxw=9.998601426134e-01 resid=1.270e-03 restarts=0 status=converged
+/Users/adoronin001/Shirlineyn_Folder/Univer/6course/skipod-task1-2026/results/local/20261103-111110/omp_t4.bin: max|difference|=2.220e-16, atol=1.000e-10 OK
+poisson_omp: M=80 N=80 h1=0.0275 h2=0.04125 eps=0.00170156 delta=1e-06 threads=16
+iters=113 restarts=0 last_step=9.602e-07 resid=1.270e-03 J=-7.799800522813e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8430215569  max_D|w|=0.9998601426  nodes_in_D=2924
+time: setup=0.0003 cg=0.0344 total=0.0347 s
+solution written to /Users/adoronin001/Shirlineyn_Folder/Univer/6course/skipod-task1-2026/results/local/20261103-111110/omp_t16.bin
+RESULT prog=omp M=80 N=80 procs=1 threads=16 iters=113 time=0.034679 cg_time=0.034407 intw=1.843021556897e+00 maxw=9.998601426134e-01 resid=1.270e-03 restarts=0 status=converged
+/Users/adoronin001/Shirlineyn_Folder/Univer/6course/skipod-task1-2026/results/local/20261103-111110/omp_t16.bin: max|difference|=1.110e-16, atol=1.000e-10 OK
+poisson_mpi: M=80 N=80 h1=0.0275 h2=0.04125 eps=0.00170156 delta=1e-06 procs=1 threads=0 (MPI thread level 1)
+decomposition 1 x 1, blocks 79..79 x 79..79 nodes, worst nx/ny ratio 1.000
+iters=113 restarts=0 last_step=9.602e-07 resid=1.270e-03 J=-7.799800522813e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8430215569  max_D|w|=0.9998601426  nodes_in_D=2924
+time: setup=0.0003 cg=0.0014 total=0.0017 s; inside cg: halo=0.0001 allreduce=0.0000 s
+solution written to /Users/adoronin001/Shirlineyn_Folder/Univer/6course/skipod-task1-2026/results/local/20261103-111110/mpi_p1.bin
+RESULT prog=mpi M=80 N=80 procs=1 threads=0 iters=113 time=0.001730 cg_time=0.001443 intw=1.843021556897e+00 maxw=9.998601426134e-01 resid=1.270e-03 restarts=0 decomp=1x1 halo=0.000060 allreduce=0.000005 status=converged
+/Users/adoronin001/Shirlineyn_Folder/Univer/6course/skipod-task1-2026/results/local/20261103-111110/mpi_p1.bin: max|difference|=0.000e+00, atol=1.000e-10 OK
+poisson_mpi: M=80 N=80 h1=0.0275 h2=0.04125 eps=0.00170156 delta=1e-06 procs=2 threads=0 (MPI thread level 1)
+decomposition 1 x 2, blocks 79..79 x 39..40 nodes, worst nx/ny ratio 2.026  WARNING: outside [1/2, 2]
+iters=113 restarts=0 last_step=9.602e-07 resid=1.270e-03 J=-7.799800522813e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8430215569  max_D|w|=0.9998601426  nodes_in_D=2924
+time: setup=0.0001 cg=0.0043 total=0.0044 s; inside cg: halo=0.0019 allreduce=0.0018 s
+solution written to /Users/adoronin001/Shirlineyn_Folder/Univer/6course/skipod-task1-2026/results/local/20261103-111110/mpi_p2.bin
+RESULT prog=mpi M=80 N=80 procs=2 threads=0 iters=113 time=0.004415 cg_time=0.004333 intw=1.843021556897e+00 maxw=9.998601426134e-01 resid=1.270e-03 restarts=0 decomp=1x2 halo=0.001895 allreduce=0.001805 status=converged
+/Users/adoronin001/Shirlineyn_Folder/Univer/6course/skipod-task1-2026/results/local/20261103-111110/mpi_p2.bin: max|difference|=1.388e-16, atol=1.000e-10 OK
+poisson_mpi: M=80 N=80 h1=0.0275 h2=0.04125 eps=0.00170156 delta=1e-06 procs=4 threads=0 (MPI thread level 1)
+decomposition 2 x 2, blocks 39..40 x 39..40 nodes, worst nx/ny ratio 1.026
+iters=113 restarts=0 last_step=9.602e-07 resid=1.270e-03 J=-7.799800522813e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8430215569  max_D|w|=0.9998601426  nodes_in_D=2924
+time: setup=0.0000 cg=0.0022 total=0.0022 s; inside cg: halo=0.0001 allreduce=0.0018 s
+solution written to /Users/adoronin001/Shirlineyn_Folder/Univer/6course/skipod-task1-2026/results/local/20261103-111110/mpi_p4.bin
+RESULT prog=mpi M=80 N=80 procs=4 threads=0 iters=113 time=0.002221 cg_time=0.002182 intw=1.843021556897e+00 maxw=9.998601426134e-01 resid=1.270e-03 restarts=0 decomp=2x2 halo=0.000091 allreduce=0.001802 status=converged
+/Users/adoronin001/Shirlineyn_Folder/Univer/6course/skipod-task1-2026/results/local/20261103-111110/mpi_p4.bin: max|difference|=1.110e-16, atol=1.000e-10 OK
+poisson_mpi: M=80 N=80 h1=0.0275 h2=0.04125 eps=0.00170156 delta=1e-06 procs=1 threads=4 (MPI thread level 1)
+decomposition 1 x 1, blocks 79..79 x 79..79 nodes, worst nx/ny ratio 1.000
+iters=113 restarts=0 last_step=9.602e-07 resid=1.270e-03 J=-7.799800522813e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8430215569  max_D|w|=0.9998601426  nodes_in_D=2924
+time: setup=0.0002 cg=0.0039 total=0.0041 s; inside cg: halo=0.0000 allreduce=0.0000 s
+solution written to /Users/adoronin001/Shirlineyn_Folder/Univer/6course/skipod-task1-2026/results/local/20261103-111110/hyb_p1.bin
+RESULT prog=hyb M=80 N=80 procs=1 threads=4 iters=113 time=0.004060 cg_time=0.003910 intw=1.843021556897e+00 maxw=9.998601426134e-01 resid=1.270e-03 restarts=0 decomp=1x1 halo=0.000030 allreduce=0.000013 status=converged
+/Users/adoronin001/Shirlineyn_Folder/Univer/6course/skipod-task1-2026/results/local/20261103-111110/hyb_p1.bin: max|difference|=2.220e-16, atol=1.000e-10 OK
+poisson_mpi: M=80 N=80 h1=0.0275 h2=0.04125 eps=0.00170156 delta=1e-06 procs=2 threads=4 (MPI thread level 1)
+decomposition 1 x 2, blocks 79..79 x 39..40 nodes, worst nx/ny ratio 2.026  WARNING: outside [1/2, 2]
+iters=113 restarts=0 last_step=9.602e-07 resid=1.270e-03 J=-7.799800522813e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8430215569  max_D|w|=0.9998601426  nodes_in_D=2924
+time: setup=0.0002 cg=0.0117 total=0.0119 s; inside cg: halo=0.0006 allreduce=0.0037 s
+solution written to /Users/adoronin001/Shirlineyn_Folder/Univer/6course/skipod-task1-2026/results/local/20261103-111110/hyb_p2.bin
+RESULT prog=hyb M=80 N=80 procs=2 threads=4 iters=113 time=0.011893 cg_time=0.011740 intw=1.843021556897e+00 maxw=9.998601426134e-01 resid=1.270e-03 restarts=0 decomp=1x2 halo=0.000606 allreduce=0.003738 status=converged
+/Users/adoronin001/Shirlineyn_Folder/Univer/6course/skipod-task1-2026/results/local/20261103-111110/hyb_p2.bin: max|difference|=1.249e-16, atol=1.000e-10 OK
+
+== 3. Прямой решатель (scipy) против CG
+20x20: max|w_cg - w_direct| = 1.155e-13  OK
+40x40: max|w_cg - w_direct| = 3.482e-13  OK
+80x80: max|w_cg - w_direct| = 2.277e-12  OK
+
+== 4. Сверка с эталоном исходной задачи (Mathematica FEM)
+grid                 (2,0)     (1.5,0.3)    (2.5,-0.8)       (2.8,1)    (1.2,-0.2)    max err
+ref             0.79154155    0.90970177    0.91552011   -0.54922497    0.81569217
+20x20           0.78976924    0.90585968    0.91189223   -0.54599603    0.81187803   3.84e-03 <= 4.50e-03  OK
+400x600         0.79195941    0.91031540    0.91594529   -0.54953187    0.81626799   6.14e-04 <= 8.00e-04  OK
+40x40           0.79373856    0.91298875    0.91760661   -0.55071904    0.81779969   3.29e-03 <= 3.80e-03  OK
+800x1200        0.79185741    0.91010547    0.91560902   -0.54938470    0.81607079   4.04e-04 <= 5.00e-04  OK
+80x80           0.79338213    0.91245456    0.91748012   -0.55068384    0.81848286   2.79e-03 <= 3.20e-03  OK
+
+== 5. Рисунок решения на самой мелкой сетке
+saved /Users/adoronin001/Shirlineyn_Folder/Univer/6course/skipod-task1-2026/results/local/20261103-111110/solution_800x1200.png
+== 6. Регрессионные проверки ошибок и неравномерного разбиения
+test_bad_arguments (__main__.Regression.test_bad_arguments) ... ok
+test_buffered_write_failure (__main__.Regression.test_buffered_write_failure) ... ok
+test_collect_rejects_failed_status (__main__.Regression.test_collect_rejects_failed_status) ... пропущен неуспешный RESULT (max_iterations): /Users/adoronin001/Shirlineyn_Folder/Univer/6course/skipod-task1-2026/results/local/20261103-111110/regression/status.out
+пропущен неуспешный RESULT (breakdown): /Users/adoronin001/Shirlineyn_Folder/Univer/6course/skipod-task1-2026/results/local/20261103-111110/regression/status.out
+Внимание: старые RESULT без status приняты для совместимости; их сходимость следует проверять по полному логу.
+ok
+test_comparators_detect_corruption (__main__.Regression.test_comparators_detect_corruption) ... ok
+test_failed_solves_and_writes (__main__.Regression.test_failed_solves_and_writes) ... ok
+test_full_fields (__main__.Regression.test_full_fields) ... field omp_80x80_p1_t1.bin: max|difference|=0.000e+00
+field omp_80x80_p1_t4.bin: max|difference|=2.220e-16
+field omp_80x80_p1_t16.bin: max|difference|=1.110e-16
+field mpi_80x80_p1_t1.bin: max|difference|=0.000e+00
+field mpi_80x80_p2_t1.bin: max|difference|=1.388e-16
+field mpi_80x80_p4_t1.bin: max|difference|=1.110e-16
+field hyb_80x80_p1_t4.bin: max|difference|=2.220e-16
+field hyb_80x80_p2_t4.bin: max|difference|=1.110e-16
+field omp_20x30_p1_t1.bin: max|difference|=0.000e+00
+field omp_20x30_p1_t4.bin: max|difference|=1.110e-16
+field omp_20x30_p1_t16.bin: max|difference|=1.110e-16
+field mpi_20x30_p1_t1.bin: max|difference|=0.000e+00
+field mpi_20x30_p2_t1.bin: max|difference|=1.110e-16
+field mpi_20x30_p4_t1.bin: max|difference|=1.110e-16
+field hyb_20x30_p1_t4.bin: max|difference|=1.110e-16
+field hyb_20x30_p2_t4.bin: max|difference|=1.110e-16
+field omp_19x23_p1_t1.bin: max|difference|=0.000e+00
+field omp_19x23_p1_t4.bin: max|difference|=1.110e-16
+field omp_19x23_p1_t16.bin: max|difference|=1.110e-16
+field mpi_19x23_p1_t1.bin: max|difference|=0.000e+00
+field mpi_19x23_p2_t1.bin: max|difference|=1.110e-16
+field mpi_19x23_p4_t1.bin: max|difference|=1.110e-16
+field hyb_19x23_p1_t4.bin: max|difference|=1.110e-16
+field hyb_19x23_p2_t4.bin: max|difference|=1.110e-16
+ok
+test_solver_status (__main__.Regression.test_solver_status) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 12.441s
+
+OK
+Evidence: /Users/adoronin001/Shirlineyn_Folder/Univer/6course/skipod-task1-2026/results/local/20261103-111110/regression
+logs: /Users/adoronin001/Shirlineyn_Folder/Univer/6course/skipod-task1-2026/results/local/20261103-111110

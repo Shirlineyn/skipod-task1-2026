@@ -1,0 +1,27 @@
+/bin/sh: warning: setlocale: LC_ALL: cannot change locale (C.UTF-8)
+perl: warning: Setting locale failed.
+perl: warning: Please check that your locale settings:
+	LANGUAGE = (unset),
+	LC_ALL = "C.UTF-8",
+	LC_CTYPE = "C.UTF-8",
+	LANG = "C.UTF-8"
+    are supported and installed on your system.
+perl: warning: Falling back to the standard locale ("C").
+usage: ./poisson_cuda M N [--delta D] [--maxit K] [--verbose K] [--out FILE] [--binding]
+  M, N      число отрезков сетки по x и y
+  --delta   критерий остановки ||w(k+1)-w(k)||_E < D (по умолчанию 1e-6)
+  --maxit   предел итераций (по умолчанию (M-1)(N-1))
+  --verbose печатать каждую K-ю итерацию
+  --out     записать решение на всей сетке в двоичный файл
+  --binding напечатать логические CPU нитей OpenMP после расчёта
+-------------------------------------------------------
+Primary job  terminated normally, but 1 process returned
+a non-zero exit code.. Per user-direction, the job has been aborted.
+-------------------------------------------------------
+--------------------------------------------------------------------------
+mpiexec detected that one or more processes exited with non-zero status, thus causing
+the job to be terminated. The first process to do so was:
+
+  Process name: [[47028,1],1]
+  Exit code:    1
+--------------------------------------------------------------------------
