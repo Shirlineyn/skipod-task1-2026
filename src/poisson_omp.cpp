@@ -61,15 +61,14 @@ int main(int argc, char** argv)
 
     std::printf("iters=%ld restarts=%d last_step=%.3e resid=%.3e J=%.12e\n",
                 res.iters, res.restarts, res.last_step, res.resid, res.J);
+    if (!res.converged()) {
+        std::fprintf(stderr, "SOLVER_ERROR status=%s iters=%ld last_step=%.6e resid=%.6e\n",
+                     cg_status_name(res.status), res.iters, res.last_step, res.resid);
+        return 3;
+    }
     std::printf("area_cells=%.10f area_D=%.10f  int_D(w)=%.10f  max_D|w|=%.10f  nodes_in_D=%.0f\n",
                 area, problem::area_D(), st[0], st[1], st[2]);
     std::printf("time: setup=%.4f cg=%.4f total=%.4f s\n", t1 - t0, t2 - t1, t2 - t0);
-    // Строка для сбора таблиц скриптом tools/collect.py.
-    std::printf("RESULT prog=%s M=%d N=%d procs=1 threads=%d iters=%ld time=%.6f cg_time=%.6f "
-                "intw=%.12e maxw=%.12e resid=%.3e restarts=%d\n",
-                omp_threads() ? "omp" : "seq", gr.M, gr.N, omp_threads(), res.iters, t2 - t0,
-                t2 - t1, st[0], st[1], res.resid, res.restarts);
-
     if (opt.binding) std::printf("binding: %s\n", thread_cpus().c_str());
 
     if (!opt.out.empty()) {
@@ -84,5 +83,11 @@ int main(int argc, char** argv)
         }
         std::printf("solution written to %s\n", opt.out.c_str());
     }
+    // Строка для сбора таблиц скриптом tools/collect.py.
+    std::printf("RESULT prog=%s M=%d N=%d procs=1 threads=%d iters=%ld time=%.6f cg_time=%.6f "
+                "intw=%.12e maxw=%.12e resid=%.3e restarts=%d status=%s\n",
+                omp_threads() ? "omp" : "seq", gr.M, gr.N, omp_threads(), res.iters, t2 - t0,
+                t2 - t1, st[0], st[1], res.resid, res.restarts, cg_status_name(res.status));
+
     return 0;
 }

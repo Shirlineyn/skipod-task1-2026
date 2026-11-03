@@ -18,6 +18,7 @@ def main(paths):
     if not paths:
         sys.exit(__doc__)
     runs = defaultdict(list)
+    legacy = False
     for p in paths:
         name = re.sub(r"\.\d+\.out$", "", p.split("/")[-1])
         with open(p, errors="replace") as fp:
@@ -27,7 +28,15 @@ def main(paths):
             print(f"нет RESULT: {p}")
             continue
         kv = dict(re.findall(r"(\w+)=(\S+)", m.group(0)))
+        status = kv.get("status")
+        if status is not None and status not in ("converged", "exact_residual"):
+            print(f"пропущен неуспешный RESULT ({status}): {p}", file=sys.stderr)
+            continue
+        legacy |= status is None
         runs[name].append(kv)
+    if legacy:
+        print("Внимание: старые RESULT без status приняты для совместимости; "
+              "их сходимость следует проверять по полному логу.", file=sys.stderr)
 
     def rng(rs, key):
         vals = [float(r[key]) for r in rs if key in r]

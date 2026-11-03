@@ -6,6 +6,9 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <cerrno>
+#include <climits>
+#include <limits>
 #include <string>
 #include <vector>
 #include <sys/time.h>
@@ -21,7 +24,7 @@
 struct Options {
     int M, N;
     double delta;
-    long maxit;        // 0 — по умолчанию (M-1)(N-1)
+    long maxit;        // 1..(M-1)(N-1), по умолчанию верхняя граница
     int verbose;
     int binding;       // печатать, на каких CPU сидят нити
     std::string out;   // файл для решения; пусто — не писать
@@ -40,26 +43,56 @@ inline void usage(const char* prog)
                  prog);
 }
 
+inline bool parse_integer(const char* text, long low, long high, long& value)
+{
+    if (!text[0] || text[0] < '0' || text[0] > '9') return false;
+    char* end = 0;
+    errno = 0;
+    value = std::strtol(text, &end, 10);
+    return errno == 0 && *end == '\0' && value >= low && value <= high;
+}
+
 inline bool parse_options(int argc, char** argv, Options& o)
 {
     if (argc < 3) return false;
-    o.M = std::atoi(argv[1]);
-    o.N = std::atoi(argv[2]);
+    long m, n;
+    if (!parse_integer(argv[1], 2, INT_MAX - 1, m) ||
+        !parse_integer(argv[2], 2, INT_MAX - 1, n)) return false;
+    // Индексы блока, размеры сообщений MPI и смещения Gatherv имеют тип int.
+    // Проверяем произведение делением, до сложения/умножения в int.
+    if (m + 1 > INT_MAX / (n + 1)) return false;
+    o.M = (int)m;
+    o.N = (int)n;
+    const long unknowns = (m - 1) * (n - 1);
     o.delta = 1e-6;
-    o.maxit = 0;
+    o.maxit = unknowns;
     o.verbose = 0;
     o.binding = 0;
+    o.out.clear();
     for (int a = 3; a < argc; ++a) {
-        if (!std::strcmp(argv[a], "--delta") && a + 1 < argc) o.delta = std::atof(argv[++a]);
-        else if (!std::strcmp(argv[a], "--maxit") && a + 1 < argc) o.maxit = std::atol(argv[++a]);
-        else if (!std::strcmp(argv[a], "--verbose") && a + 1 < argc) o.verbose = std::atoi(argv[++a]);
-        else if (!std::strcmp(argv[a], "--out") && a + 1 < argc) o.out = argv[++a];
+        if (!std::strcmp(argv[a], "--delta") && a + 1 < argc) {
+            const char* text = argv[++a];
+            char* end = 0;
+            errno = 0;
+            o.delta = std::strtod(text, &end);
+            if (errno || end == text || *end || !(o.delta > 0.0) ||
+                o.delta > std::numeric_limits<double>::max()) return false;
+        }
+        else if (!std::strcmp(argv[a], "--maxit") && a + 1 < argc) {
+            if (!parse_integer(argv[++a], 1, unknowns, o.maxit)) return false;
+        }
+        else if (!std::strcmp(argv[a], "--verbose") && a + 1 < argc) {
+            long value;
+            if (!parse_integer(argv[++a], 0, INT_MAX, value)) return false;
+            o.verbose = (int)value;
+        }
+        else if (!std::strcmp(argv[a], "--out") && a + 1 < argc) {
+            o.out = argv[++a];
+            if (o.out.empty()) return false;
+        }
         else if (!std::strcmp(argv[a], "--binding")) o.binding = 1;
         else return false;
     }
-    if (o.M < 2 || o.N < 2) return false;
-    const long unknowns = (long)(o.M - 1) * (o.N - 1);
-    if (o.maxit <= 0 || o.maxit > unknowns) o.maxit = unknowns;
     return true;
 }
 
@@ -127,11 +160,12 @@ inline bool write_solution(const std::string& path, const problem::Grid& gr,
     if (!fp) return false;
     int hdr[2] = {gr.M, gr.N};
     double box[4] = {problem::A1, problem::B1, problem::A2, problem::B2};
-    std::fwrite(hdr, sizeof(int), 2, fp);
-    std::fwrite(box, sizeof(double), 4, fp);
-    std::fwrite(&w[0], sizeof(double), w.size(), fp);
-    std::fclose(fp);
-    return true;
+    bool ok = std::fwrite(hdr, sizeof(int), 2, fp) == 2;
+    ok = (std::fwrite(box, sizeof(double), 4, fp) == 4) && ok;
+    ok = (std::fwrite(&w[0], sizeof(double), w.size(), fp) == w.size()) && ok;
+    // Ошибка буферизованной записи может появиться только при fclose.
+    if (std::fclose(fp) != 0) ok = false;
+    return ok;
 }
 
 // w = v0 во всех узлах сетки (M+1)x(N+1); поправку d во внутренних узлах

@@ -17,6 +17,7 @@ results/*.out), группирует их и печатает таблицы в 
 """
 
 import argparse
+import math
 import re
 import sys
 from collections import defaultdict
@@ -30,15 +31,27 @@ ROW_HYB = [(2, 1, "400x600"), (2, 2, "400x600"), (2, 4, "400x600"), (2, 8, "400x
 
 def parse(paths):
     runs = defaultdict(list)  # (prog, grid, procs, threads) -> [(time, iters, file)]
+    legacy = False
     for p in paths:
         with open(p, errors="replace") as fp:
             for line in fp:
                 if not line.startswith("RESULT "):
                     continue
                 kv = dict(re.findall(r"(\w+)=(\S+)", line))
+                status = kv.get("status")
+                if status is not None and status not in ("converged", "exact_residual"):
+                    print(f"пропущен неуспешный RESULT ({status}): {p}", file=sys.stderr)
+                    continue
+                if not math.isfinite(float(kv["time"])) or float(kv["time"]) <= 0:
+                    print(f"пропущено некорректное время: {p}", file=sys.stderr)
+                    continue
+                legacy |= status is None
                 grid = f"{kv['M']}x{kv['N']}"
                 key = (kv["prog"], grid, int(kv["procs"]), int(kv["threads"]))
                 runs[key].append((float(kv["time"]), int(kv["iters"]), p))
+    if legacy:
+        print("Внимание: старые RESULT без status приняты для совместимости; "
+              "их сходимость следует проверять по полному логу.", file=sys.stderr)
     return runs
 
 

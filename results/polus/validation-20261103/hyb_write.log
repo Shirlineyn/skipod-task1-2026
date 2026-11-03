@@ -1,0 +1,26 @@
+/bin/sh: warning: setlocale: LC_ALL: cannot change locale (C.UTF-8)
+perl: warning: Setting locale failed.
+perl: warning: Please check that your locale settings:
+	LANGUAGE = (unset),
+	LC_ALL = "C.UTF-8",
+	LC_CTYPE = "C.UTF-8",
+	LANG = "C.UTF-8"
+    are supported and installed on your system.
+perl: warning: Falling back to the standard locale ("C").
+poisson_mpi: M=20 N=20 h1=0.11 h2=0.165 eps=0.027225 delta=1e-06 procs=2 threads=4 (MPI thread level 1)
+decomposition 1 x 2, blocks 19..19 x 9..10 nodes, worst nx/ny ratio 2.111  WARNING: outside [1/2, 2]
+cannot write results/polus/validation/missing/sol.bin
+iters=31 restarts=0 last_step=9.195e-07 resid=9.986e-05 J=-8.579841363787e-02
+area_cells=3.3612671001 area_D=3.3612671001  int_D(w)=1.8410722750  max_D|w|=0.9961234697  nodes_in_D=178
+time: setup=0.0004 cg=0.0010 total=0.0014 s; inside cg: halo=0.0003 allreduce=0.0003 s
+-------------------------------------------------------
+Primary job  terminated normally, but 1 process returned
+a non-zero exit code.. Per user-direction, the job has been aborted.
+-------------------------------------------------------
+--------------------------------------------------------------------------
+mpiexec detected that one or more processes exited with non-zero status, thus causing
+the job to be terminated. The first process to do so was:
+
+  Process name: [[47174,1],0]
+  Exit code:    2
+--------------------------------------------------------------------------
