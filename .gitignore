@@ -9,3 +9,12 @@ poisson_hyb
 # (корневой .gitignore исключает *.out и *.err).
 !*.out
 !*.err
+
+# Не включать учётные данные в публичный репозиторий.
+.env
+.env.*
+id_rsa*
+id_ed25519*
+*.pem
+*.key
+__pycache__/
