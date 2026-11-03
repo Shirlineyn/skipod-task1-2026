@@ -21,3 +21,5 @@ __pycache__/
 
 # Генерируемые файлы проверок (сводка хранится в run_local.out).
 /results/local/*/regression/
+
+trace_cg

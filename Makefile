@@ -51,7 +51,7 @@ else
   MPIENV   := OMPI_CXX=g++
 endif
 
-HDR := src/problem.h src/solver.h src/common.h
+HDR := src/problem.h src/solver.h src/common.h src/decomp.h
 
 all: poisson_seq poisson_omp poisson_mpi poisson_hyb
 
@@ -66,6 +66,9 @@ poisson_mpi: src/poisson_mpi.cpp $(HDR)
 
 poisson_hyb: src/poisson_mpi.cpp $(HDR)
 	$(MPIENV) $(MPICXX) $(CXXFLAGS) $(OMPFLAGS) -o $@ $<
+
+trace_cg: tools/trace_cg.cpp $(HDR)
+	$(CXX) $(CXXFLAGS) -Isrc -o $@ $<
 
 clean:
 	rm -f poisson_seq poisson_omp poisson_mpi poisson_hyb

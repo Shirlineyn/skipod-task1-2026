@@ -1,0 +1,3 @@
+checks=<|antiderivative -> True, area -> True, functional -> True, domain_partition -> True, 80x80_P2 -> True, owned_ratio_impossible -> True|>
+area=3.36126710009974212117245684764930192668`16.
+domain_ratio=81/41; owned_worst_ratio=79/39

@@ -1,0 +1,30 @@
+xlC_r -O3 -qstrict -qarch=pwr8 -qtune=pwr8 -o poisson_seq src/poisson_omp.cpp
+xlC_r -O3 -qstrict -qarch=pwr8 -qtune=pwr8 -qsmp=omp -o poisson_omp src/poisson_omp.cpp
+mpixlC -O3 -qstrict -qarch=pwr8 -qtune=pwr8 -o poisson_mpi src/poisson_mpi.cpp
+mpixlC -O3 -qstrict -qarch=pwr8 -qtune=pwr8 -qsmp=omp -o poisson_hyb src/poisson_mpi.cpp
+/bin/sh: warning: setlocale: LC_ALL: cannot change locale (C.UTF-8)
+/bin/sh: warning: setlocale: LC_ALL: cannot change locale (C.UTF-8)
+/bin/sh: warning: setlocale: LC_ALL: cannot change locale (C.UTF-8)
+/bin/sh: warning: setlocale: LC_ALL: cannot change locale (C.UTF-8)
+/bin/sh: warning: setlocale: LC_ALL: cannot change locale (C.UTF-8)
+/bin/sh: warning: setlocale: LC_ALL: cannot change locale (C.UTF-8)
+sh: warning: setlocale: LC_ALL: cannot change locale (C.UTF-8)
+/usr/local/cuda/bin/nvcc -O3 -std=c++11 -arch=sm_60 -Xcompiler -Wall,-Wno-unknown-pragmas -c -o cg_cuda.o src/cg_cuda.cu
+sh: warning: setlocale: LC_ALL: cannot change locale (C.UTF-8)
+sh: warning: setlocale: LC_ALL: cannot change locale (C.UTF-8)
+sh: warning: setlocale: LC_ALL: cannot change locale (C.UTF-8)
+xlC_r -O3 -qstrict -qarch=pwr8 -qtune=pwr8 -Isrc -o trace_cg tools/trace_cg.cpp
+/bin/sh: warning: setlocale: LC_ALL: cannot change locale (C.UTF-8)
+sh: warning: setlocale: LC_ALL: cannot change locale (C.UTF-8)
+sh: warning: setlocale: LC_ALL: cannot change locale (C.UTF-8)
+sh: warning: setlocale: LC_ALL: cannot change locale (C.UTF-8)
+sh: warning: setlocale: LC_ALL: cannot change locale (C.UTF-8)
+sh: warning: setlocale: LC_ALL: cannot change locale (C.UTF-8)
+sh: warning: setlocale: LC_ALL: cannot change locale (C.UTF-8)
+sh: warning: setlocale: LC_ALL: cannot change locale (C.UTF-8)
+mpixlC -O3 -qstrict -qarch=pwr8 -qtune=pwr8 -DUSE_CUDA -o poisson_cuda src/poisson_mpi.cpp cg_cuda.o \
+    -L/usr/local/cuda/lib64 -lcudart -Wl,-rpath,/usr/local/cuda/lib64
+/bin/sh: warning: setlocale: LC_ALL: cannot change locale (C.UTF-8)
+/bin/sh: warning: setlocale: LC_ALL: cannot change locale (C.UTF-8)
+sh: warning: setlocale: LC_ALL: cannot change locale (C.UTF-8)
+sh: warning: setlocale: LC_ALL: cannot change locale (C.UTF-8)
